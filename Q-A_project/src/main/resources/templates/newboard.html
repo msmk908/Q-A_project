@@ -11,26 +11,27 @@
     <title>new board</title>
 
     <!-- Custom fonts for this template-->
-    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link
             href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
             rel="stylesheet">
 
     <!-- Custom styles for this template-->
-    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="/css/sb-admin-2.min.css" rel="stylesheet">
 
 </head>
 
-<body class="bg-gradient-primary">
+<body id="page-top">
 
-<div class="container">
+<div id="wrapper">
 
-    <div class="card o-hidden border-0 shadow-lg my-5">
-        <div class="card-body p-0">
+    <div th:include="~{sidebar :: #accordionSidebar}"></div>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content" class="p-5">
             <!-- Nested Row within Card Body -->
-            <div class="row">
+            <div class="content-fluid row">
                 <div class="col-lg-12">
-                    <div class="p-5">
                         <div class="form-group row">
                             <div class="col-sm-9">
                                 <h1 class="h4 text-gray-900 mb-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;게시글 등록</h1>
@@ -41,7 +42,7 @@
                                 </a>
                             </div>
                         </div>
-                        <form class="user">
+                        <form class="user" enctype="multipart/form-data">
                             <div class="form-group">
                                 <input type="text" class="form-control form-control-user" id="title"
                                        placeholder="제목을 입력하세요">
@@ -49,43 +50,33 @@
                             <!-- 토스트 ui -->
                             <div id="tui"></div>
                             <hr>
+                            <!-- 해시태그 추가버튼 -->
                             <div class="form-group row">
                                 <div class="col-sm-6 mb-3 mb-sm-0">
                                     <input type="text" class="form-control form-control-user" id="hashtag"
                                        placeholder="input hashtag">
                                 </div>
                                 <div class="col-sm-3">
-                                    <button class="btn btn-primary" type="button">
+                                    <button class="btn btn-primary" type="button" id="newhashtag">
                                         추가
                                     </button>
                                 </div>
                             </div>
+                            <!-- 해시태그 -->
+                            <div class="form-group row hashtag-list">
+                                <!-- 해시태그 추가되는 부분 -->
+                            </div>
+                            <!-- 첨부파일 -->
                             <div class="form-group row">
-                                <div class="col-sm-2">
-                                    <a href="#" class="btn btn-primary btn-icon-split">
-                                        <span class="text">hashtag1</span>
-                                        <span class="icon text-white-50">
-                                            <i class="fas fa-trash"></i>
-                                        </span>
-                                    </a>
-                                </div>
-                                <div class="col-sm-2">
-                                    <a href="#" class="btn btn-primary btn-icon-split">
-                                        <span class="text">hashtag2</span>
-                                        <span class="icon text-white-50">
-                                            <i class="fas fa-trash"></i>
-                                        </span>
-                                    </a>
-                                </div>
-                                <div class="col-sm-2">
-                                    <a href="#" class="btn btn-primary btn-icon-split">
-                                        <span class="text">hashtag3</span>
-                                        <span class="icon text-white-50">
-                                            <i class="fas fa-trash"></i>
-                                        </span>
-                                    </a>
+                                <label for="inputFile" class="col-sm-2 col-form-label"><strong>첨부 파일</strong></label>
+                                <div class="col-sm-10">
+                                    <div class="custom-file" id="inputFile">
+                                        <input name="file" type="file" class="custom-file-input" id="customFile" />
+                                        <label class="custom-file-label" for="customFile">파일을 선택해 주세요.</label>
+                                    </div>
                                 </div>
                             </div>
+
                             <br/><br/>
                             <div class="form-group row">
                                 <div class="col-2"></div>
@@ -97,7 +88,6 @@
                                 <div class="col-2"></div>
                             </div>
                         </form>
-                    </div>
                 </div>
             </div>
         </div>
@@ -106,14 +96,14 @@
 </div>
 
 <!-- Bootstrap core JavaScript-->
-<script src="vendor/jquery/jquery.min.js"></script>
-<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 <!-- Core plugin JavaScript-->
-<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+<script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
 
 <!-- Custom scripts for all pages-->
-<script src="js/sb-admin-2.min.js"></script>
+<script src="/js/sb-admin-2.min.js"></script>
 
 <!-- TUI 에디터 JS CDN -->
 <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
@@ -161,6 +151,60 @@
     });
 
     editor.setHTML(document.getElementById('article-content').value);
+</script>
+
+<!-- 커스텀 첨부파일 -->
+<script>
+    $('.custom-file-input').on('change', function () {
+        var fileName = $(this).val().split('\\').pop();
+        $(this).siblings('.custom-file-label').addClass('selected').html(fileName);
+    });
+</script>
+
+<!-- 해시태그 추가 스크립트 -->
+<script>
+    $(document).ready(function(){
+        // 추가 버튼 클릭 시
+        $('#newhashtag').click(function(){
+            // 입력한 해시태그 텍스트 가져오기
+            var hashtagText = $('#hashtag').val().trim();
+            // 정규표현식을 사용하여 유효성 검사
+            var hashtagPattern = /^#[a-zA-Z0-9가-힣]{1,9}$/;
+            // 입력한 해시태그가 비어있으면 추가하지 않음
+            if(hashtagText !== '' && hashtagPattern.test(hashtagText)) {
+                // 현재 해시태그 목록 개수 확인
+                var hashtagCount = $('.form-group.hashtag-list .col-sm-3').length;
+                // 해시태그가 3개 미만인 경우에만 추가
+                if(hashtagCount < 3){
+                    // 해시태그 추가 요소 생성
+                    var hashtagElement = '<div class="col-sm-3">' +
+                        '<a href="#" class="btn btn-primary btn-icon-split">' +
+                        '<span class="text">' + hashtagText + '</span>' +
+                     '<span class="icon text-white-50">' +
+                     '<i class="fas fa-trash"></i>' +
+                     '</span>' +
+                     '</a>' +
+                     '</div>';
+                    // 생성한 요소를 해시태그 목록에 추가
+                    $('.form-group.hashtag-list').append(hashtagElement);
+                    // 입력 필드 비우기
+                    $('#hashtag').val('');
+                } else {
+                    // 해시태그 개수가 최대 개수를 초과한 경우 경고 메시지 표시
+                    alert('최대 3개까지만 추가할 수 있습니다.');
+                }
+            } else {
+                // 유효성 검사 실패 시 경고 메시지 표시
+                alert('해시태그는 #으로 시작하고 10글자 이내로 띄어쓰기 없이 입력해주세요.');
+            }
+        });
+
+        // 삭제 버튼 클릭 시
+        $(document).on('click', '.btn-icon-split', function(){
+            // 해당 해시태그 요소 제거
+            $(this).closest('.col-sm-3').remove();
+        });
+    });
 </script>
 
 </body>

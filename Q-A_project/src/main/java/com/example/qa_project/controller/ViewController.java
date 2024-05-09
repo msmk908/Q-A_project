@@ -18,4 +18,14 @@ public class ViewController {
         return "newboard";
     }
 
+    @GetMapping("/filemanagement")
+    public String filemanagement(){
+        return "filemanagement";
+    }
+
+    @GetMapping("/tables")
+    public String tables(){
+        return "tables";
+    }
+
 }

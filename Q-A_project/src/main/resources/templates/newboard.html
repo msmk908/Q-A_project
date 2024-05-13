@@ -21,11 +21,9 @@
 
 </head>
 
-<body id="page-top">
+<body>
 
 <div id="wrapper">
-
-    <div th:include="~{sidebar :: #accordionSidebar}"></div>
 
     <div id="content-wrapper" class="d-flex flex-column">
         <div id="content" class="p-5">
@@ -169,7 +167,7 @@
             // 입력한 해시태그 텍스트 가져오기
             var hashtagText = $('#hashtag').val().trim();
             // 정규표현식을 사용하여 유효성 검사
-            var hashtagPattern = /^#[a-zA-Z0-9가-힣]{1,9}$/;
+            var hashtagPattern = /^[a-zA-Z0-9가-힣]{1,9}$/;
             // 입력한 해시태그가 비어있으면 추가하지 않음
             if(hashtagText !== '' && hashtagPattern.test(hashtagText)) {
                 // 현재 해시태그 목록 개수 확인
@@ -179,7 +177,7 @@
                     // 해시태그 추가 요소 생성
                     var hashtagElement = '<div class="col-sm-3">' +
                         '<a href="#" class="btn btn-primary btn-icon-split">' +
-                        '<span class="text">' + hashtagText + '</span>' +
+                        '<span class="text">#' + hashtagText + '</span>' +
                      '<span class="icon text-white-50">' +
                      '<i class="fas fa-trash"></i>' +
                      '</span>' +
@@ -195,7 +193,7 @@
                 }
             } else {
                 // 유효성 검사 실패 시 경고 메시지 표시
-                alert('해시태그는 #으로 시작하고 10글자 이내로 띄어쓰기 없이 입력해주세요.');
+                alert('한글이나 영어 10글자 이내로 입력해주세요');
             }
         });
 

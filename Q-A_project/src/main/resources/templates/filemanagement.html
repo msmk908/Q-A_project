@@ -24,11 +24,9 @@
 
 </head>
 
-<body id="page-top">
+<body>
 
 <div id="wrapper">
-
-    <div th:include="~{sidebar :: #accordionSidebar}"></div>
 
     <div id="content-wrapper" class="d-flex flex-column">
         <div id="content" class="p-5">
@@ -50,10 +48,9 @@
                             <p>첨부파일 최대용량</p>
                             <div class="d-flex align-items-center"> <!-- 추가 -->
                                 <select name="dataTable_length" aria-controls="dataTable" class="custom-select custom-select-sm form-control form-control-sm">
+                                    <option value="5">5</option>
                                     <option value="10">10</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
+                                    <option value="20">20</option>
                                 </select>
                                 <span>&nbsp;&nbsp;MB</span>
                             </div>
@@ -112,7 +109,7 @@
     $(function ($) {
         var options = {
             minimum: 1,
-            maximize: 10,
+            maximize: 5,
             onChange: valChanged,
             onMinimum: function(e) {
                 console.log('reached minimum: '+e)

@@ -23,9 +23,9 @@ public class ViewController {
         return "filemanagement";
     }
 
-    @GetMapping("/tables")
-    public String tables(){
-        return "tables";
+    @GetMapping("/boardlist")
+    public String boardlist(){
+        return "boardlist";
     }
 
 }

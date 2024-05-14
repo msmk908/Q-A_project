@@ -10,13 +10,16 @@
 
     <title>new board</title>
 
-    <!-- Custom fonts for this template-->
+    <!-- 드롭존 css -->
+    <link href="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone.css" rel="stylesheet" type="text/css" />
+
+    <!-- SB Admin2 text/css -->
     <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link
             href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
             rel="stylesheet">
 
-    <!-- Custom styles for this template-->
+    <!-- SB Admin2 css -->
     <link href="/css/sb-admin-2.min.css" rel="stylesheet">
 
 </head>
@@ -24,74 +27,79 @@
 <body>
 
 <div id="wrapper">
-
     <div id="content-wrapper" class="d-flex flex-column">
         <div id="content" class="p-5">
             <!-- Nested Row within Card Body -->
             <div class="content-fluid row">
                 <div class="col-lg-12">
+                    <div class="form-group row">
+
+                        <!-- 맨 위 타이틀부분 -->
+                        <div class="col-sm-9">
+                            <h1 class="h4 text-gray-900 mb-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;게시글 등록</h1>
+                        </div>
+
+                        <!-- 취소버튼 -->
+                        <div class="col-sm-3 text-right">
+                            <a href="boardlist" class="btn btn-danger btn-icon-split">
+                                <span class="text">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;취소 버튼&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- form 시작 부분 -->
+                    <form class="user" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <input type="text" class="form-control form-control-user" id="title"
+                                   placeholder="제목을 입력하세요">
+                        </div>
+
+                        <!-- 토스트 ui -->
+                        <div id="tui"></div>
+                        <hr>
+
+                        <!-- 해시태그 추가버튼 -->
                         <div class="form-group row">
-                            <div class="col-sm-9">
-                                <h1 class="h4 text-gray-900 mb-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;게시글 등록</h1>
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                                <input type="text" class="form-control form-control-user" id="hashtag"
+                                       placeholder="input hashtag">
                             </div>
-                            <div class="col-sm-3 text-right">
-                                <a href="#" class="btn btn-danger btn-icon-split">
-                                    <span class="text">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;취소 버튼&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                                </a>
+                            <div class="col-sm-3">
+                                <button class="btn btn-primary" type="button" id="newhashtag">
+                                    추가
+                                </button>
                             </div>
                         </div>
-                        <form class="user" enctype="multipart/form-data">
-                            <div class="form-group">
-                                <input type="text" class="form-control form-control-user" id="title"
-                                       placeholder="제목을 입력하세요">
-                            </div>
-                            <!-- 토스트 ui -->
-                            <div id="tui"></div>
-                            <hr>
-                            <!-- 해시태그 추가버튼 -->
-                            <div class="form-group row">
-                                <div class="col-sm-6 mb-3 mb-sm-0">
-                                    <input type="text" class="form-control form-control-user" id="hashtag"
-                                       placeholder="input hashtag">
-                                </div>
-                                <div class="col-sm-3">
-                                    <button class="btn btn-primary" type="button" id="newhashtag">
-                                        추가
-                                    </button>
-                                </div>
-                            </div>
-                            <!-- 해시태그 -->
-                            <div class="form-group row hashtag-list">
-                                <!-- 해시태그 추가되는 부분 -->
-                            </div>
-                            <!-- 첨부파일 -->
-                            <div class="form-group row">
-                                <label for="inputFile" class="col-sm-2 col-form-label"><strong>첨부 파일</strong></label>
-                                <div class="col-sm-10">
-                                    <div class="custom-file" id="inputFile">
-                                        <input name="file" type="file" class="custom-file-input" id="customFile" />
-                                        <label class="custom-file-label" for="customFile">파일을 선택해 주세요.</label>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <br/><br/>
-                            <div class="form-group row">
-                                <div class="col-2"></div>
-                                <div class="col-8">
-                                    <a href="#" class="btn btn-primary btn-user btn-block">
-                                        게시물 등록하기 버튼
-                                    </a>
-                                </div>
-                                <div class="col-2"></div>
+                        <!-- 해시태그 -->
+                        <div class="form-group row hashtag-list">
+                            <!-- 해시태그 추가되는 부분 -->
+                        </div>
+
+                        <!-- 첨부파일 -->
+                        <div class="dropzone">
+                        </div>
+
+                        <br/><br/>
+                        <!-- 등록 버튼 -->
+                        <div class="form-group row">
+                            <div class="col-2"></div>
+                            <div class="col-8">
+                                <a href="#" class="btn btn-primary btn-user btn-block">
+                                    게시물 등록하기 버튼
+                                </a>
                             </div>
-                        </form>
+                            <div class="col-2"></div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
+
+<!-- 드롭존 스크립트 -->
+<script src="https://unpkg.com/dropzone@6.0.0-beta.1/dist/dropzone-min.js"></script>
 
 <!-- Bootstrap core JavaScript-->
 <script src="/vendor/jquery/jquery.min.js"></script>
@@ -100,13 +108,15 @@
 <!-- Core plugin JavaScript-->
 <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
 
-<!-- Custom scripts for all pages-->
+<!-- SB Admin2 스크립트 -->
 <script src="/js/sb-admin-2.min.js"></script>
 
 <!-- TUI 에디터 JS CDN -->
 <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
 <!-- TUI 에디터 CSS CDN -->
 <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+
+<!-- TUI 스크립트 -->
 <script>
     const editor = new toastui.Editor({
         el: document.querySelector('#tui'),          // 에디터를 적용할 요소 (컨테이너)
@@ -149,14 +159,6 @@
     });
 
     editor.setHTML(document.getElementById('article-content').value);
-</script>
-
-<!-- 커스텀 첨부파일 -->
-<script>
-    $('.custom-file-input').on('change', function () {
-        var fileName = $(this).val().split('\\').pop();
-        $(this).siblings('.custom-file-label').addClass('selected').html(fileName);
-    });
 </script>
 
 <!-- 해시태그 추가 스크립트 -->
@@ -202,6 +204,17 @@
             // 해당 해시태그 요소 제거
             $(this).closest('.col-sm-3').remove();
         });
+    });
+</script>
+
+<!-- 드롭존 스크립트 -->
+<script>
+    Dropzone.autoDiscover = false; // deprecated 된 옵션. false로 해놓는걸 공식문서에서 명시
+
+    const dropzone = new Dropzone("div.dropzone", {
+        url: "https://httpbin.org/post",
+        addRemoveLinks: true, // 업로드 후 파일 삭제버튼 표시 여부
+        dictRemoveFile: '삭제', // 삭제버튼 표시 텍스트
     });
 </script>
 

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @NoArgsConstructor // 기본 생성자 추가
 @AllArgsConstructor
 @Getter
@@ -17,6 +19,7 @@ public class AddBoardRequest {
     private Long hitcount;
     private String nickname;
     private String board_condition;
+    private List<UploadFileDto> files;
 
     public Board toEntity(){
         return Board.builder()

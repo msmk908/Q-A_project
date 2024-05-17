@@ -19,16 +19,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ViewController {
 
-//    @GetMapping("/main")
-//    public String mainpage(){
-//        return "mainpage";
-//    }
-
-    private final BoardService boardservice;
+    private final BoardService boardService;
 
     @GetMapping("/main")
-    public String mainpage(){
-        return "boardlist";
+    public String boardList(Model model) {
+        // 게시글 목록을 가져와서 모델에 추가
+        List<Board> boards = boardService.getAllBoards();
+        model.addAttribute("boards", boards);
+        return "boardlist"; // HTML 템플릿 이름 리턴
     }
 
     @GetMapping("/login")
@@ -70,7 +68,7 @@ public class ViewController {
     }
 
     @GetMapping("/newboard")
-    public String newboard(@RequestParam(required = false) Long bno, Model model){
+    public String newboard(Model model){
 
         model.addAttribute("board", new BoardViewDto());
 
@@ -85,7 +83,7 @@ public class ViewController {
     @GetMapping("/viewboard/{bno}")
     public String viewBoard(@PathVariable Long bno, Model model) {
 
-        Board board = boardservice.findByBno(bno);
+        Board board = boardService.findByBno(bno);
         System.out.println(board.getTitle());
         System.out.println(board.getNickname());
 

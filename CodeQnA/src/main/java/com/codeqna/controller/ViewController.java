@@ -2,9 +2,18 @@ package com.codeqna.controller;
 
 
 import com.codeqna.dto.BoardViewDto;
+import com.codeqna.dto.UserFormDto;
 import com.codeqna.entity.Board;
+import com.codeqna.entity.Reply;
+import com.codeqna.entity.Users;
+import com.codeqna.repository.BoardRepository;
+import com.codeqna.repository.UserRepository;
 import com.codeqna.service.BoardService;
+import com.codeqna.service.ReplyService;
+import com.codeqna.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +28,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ViewController {
 
+    private final UserRepository userRepository;
     private final BoardService boardService;
+    private final BoardRepository repository;
+    private final ReplyService replyService;
 
     @GetMapping("/main")
     public String boardList(Model model) {
@@ -29,14 +41,16 @@ public class ViewController {
         return "boardlist"; // HTML 템플릿 이름 리턴
     }
 
-    @GetMapping("/login")
-    public String login(){
-        return "user/login";
-    }
+    @GetMapping("/Loginmain")
+    public String Loginmainpage(Model model){
+        List<Board> boards = boardService.getAllBoards();
+        model.addAttribute("boards", boards);
 
-    @GetMapping("/signup")
-    public String signup(){
-        return "user/signup";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Users users = userRepository.findByEmail(email);
+        model.addAttribute("nickname", users.getNickname());
+        return "boardlist";
     }
 
     @GetMapping("/admin/deleted")
@@ -62,13 +76,12 @@ public class ViewController {
         return "admin/manageFiles";
     }
 
-    @GetMapping("/mypage")
-    public String mypage(){
-        return "user/mypage";
-    }
-
     @GetMapping("/newboard")
     public String newboard(Model model){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Users users = userRepository.findByEmail(email);
+        model.addAttribute("nickname", users.getNickname());
 
         model.addAttribute("board", new BoardViewDto());
 
@@ -76,16 +89,36 @@ public class ViewController {
     }
 
     @GetMapping("/modifyboard")
-    public String modifyboard(){
+    public String modifyboard(@RequestParam(required = false) Long bno, Model model){
+        //지금은 board 데이터 전부 다 넘겨주고 있는데
+        //나중에 제목, 내용, 해시태그, 첨부파일 이것만 보내주면 댐
+        Board board = boardService.findByBno(bno);
+        model.addAttribute("board", board);
         return "modifyboard";
     }
+
+    private final BoardService service;
 
     @GetMapping("/viewboard/{bno}")
     public String viewBoard(@PathVariable Long bno, Model model) {
 
         Board board = boardService.findByBno(bno);
-        System.out.println(board.getTitle());
-        System.out.println(board.getNickname());
+        List<Reply> reply = replyService.findByBno(bno);
+
+        //없는 게시물에 들어갔을 때
+        if(board == null){
+            return "error2";
+        }
+
+        //삭제된 게시물에 접근할 때
+        if(board.getBoard_condition().equals("Y")) {
+            return "error2";
+        }
+        /*System.out.println(board.getTitle());
+        System.out.println(board.getUser_id());*/
+
+        //정상적인 페이지로 들어갔을 경우 조회수 + 1
+        repository.incrementHitCount(bno);
 
         String hashtags = board.getHashtag();
         List<String> hashtagList = Arrays.asList(hashtags.split("#"));
@@ -94,6 +127,8 @@ public class ViewController {
         model.addAttribute("hashtags", hashtagList);
 
         model.addAttribute("board", board);
+
+        model.addAttribute("reply", reply);
         return "viewBoard";
     }
 }

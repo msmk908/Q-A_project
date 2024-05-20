@@ -8,6 +8,7 @@ import com.codeqna.repository.BoardRepository;
 import com.codeqna.repository.UploadfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,9 +35,9 @@ public class BoardService {
             return boardRepository.findByNicknameContaining(keyword);
         } else if (condition.equals("hashtag")) {
             String[] keywords = Arrays.stream(keyword.split(","))
-                                .map(String::trim)
-                                .filter(s -> !s.isEmpty())  // 공백만 있는 경우 필터링
-                                .toArray(String[]::new);
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())  // 공백만 있는 경우 필터링
+                    .toArray(String[]::new);
             return boardRepository.findByHashtagsContaining(keywords);
         } else {
             // 검색 조건이 잘못된 경우 처리
@@ -67,6 +68,32 @@ public class BoardService {
         uploadfileRepository.saveAll(uploadFiles);
 
         return savedBoard;
+    }
+
+    //게시물 삭제
+    @Transactional //이게 왜 붙어야하는지 모르겠음
+    public void deleteBoard(Long bno) {
+        System.out.println("요까지2");
+        Board board = boardRepository.findByBno(bno);
+
+        board.deleteBoard();
+    }
+
+    //게시물 좋아요
+    @Transactional
+    public void increaseHeart(Long bno) {
+        Board board = boardRepository.findByBno(bno);
+
+        board.increaseHeart();
+    }
+
+    //게시물 좋아요 취소
+    @Transactional
+    public void decreaseHeart(Long bno) {
+        System.out.println("좋아요 취소");
+        Board board = boardRepository.findByBno(bno);
+
+        board.decreaseHeart();
     }
 
 }

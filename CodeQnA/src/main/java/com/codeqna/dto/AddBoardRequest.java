@@ -2,6 +2,7 @@ package com.codeqna.dto;
 
 import com.codeqna.entity.Board;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

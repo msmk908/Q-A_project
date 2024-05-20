@@ -16,7 +16,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
     private EntityManager entityManager;
 
     @Override
-    public List<Board> findByHashtagsContaining(String[] keywords){
+    public List<Board> findByHashtagsContainingAndBoard_condition(String[] keywords, String board_condition){
         StringBuilder queryBuilder = new StringBuilder("SELECT b FROM Board b WHERE ");
         List<String> conditions = new ArrayList<>();
 

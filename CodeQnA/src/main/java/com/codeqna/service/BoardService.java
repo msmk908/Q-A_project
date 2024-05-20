@@ -28,17 +28,17 @@ public class BoardService {
     // 검색조건에 맞는 게시물을 가져오기
     public List<Board> searchBoards(String condition, String keyword) {
         if (condition.equals("title")) {
-            return boardRepository.findByTitleContaining(keyword);
+            return boardRepository.findByTitleContainingAndBoard_condition(keyword, "N");
         } else if (condition.equals("content")) {
-            return boardRepository.findByContentContaining(keyword);
+            return boardRepository.findByContentContainingAndBoard_condition(keyword, "N");
         } else if (condition.equals("nickname")) {
-            return boardRepository.findByNicknameContaining(keyword);
+            return boardRepository.findByNicknameContainingAndBoard_condition(keyword, "N");
         } else if (condition.equals("hashtag")) {
             String[] keywords = Arrays.stream(keyword.split(","))
                     .map(String::trim)
                     .filter(s -> !s.isEmpty())  // 공백만 있는 경우 필터링
                     .toArray(String[]::new);
-            return boardRepository.findByHashtagsContaining(keywords);
+            return boardRepository.findByHashtagsContainingAndBoard_condition(keywords, "N");
         } else {
             // 검색 조건이 잘못된 경우 처리
             throw new IllegalArgumentException("Invalid search condition: " + condition);

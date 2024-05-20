@@ -13,9 +13,9 @@ public interface BoardRepository extends JpaRepository<Board, Long>, BoardReposi
     Board findByBno(Long bno);
 
     // 칼럼에 키워드값이 포함되어 있는 보드리스트
-    List<Board> findByTitleContaining(String keyword);
-    List<Board> findByContentContaining(String keyword);
-    List<Board> findByNicknameContaining(String keyword);
+    List<Board> findByTitleContainingAndBoard_condition(String keyword, String board_condition);
+    List<Board> findByContentContainingAndBoard_condition(String keyword, String board_condition);
+    List<Board> findByNicknameContainingAndBoard_condition(String keyword, String board_condition);
 
     @Transactional
     @Modifying

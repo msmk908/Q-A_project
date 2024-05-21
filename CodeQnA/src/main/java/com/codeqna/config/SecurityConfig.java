@@ -47,12 +47,12 @@ public class SecurityConfig {
                 .requestMatchers(antMatcher("/img/**")).permitAll()
                 .requestMatchers(antMatcher("/boardAPI/**")).permitAll()
                 .requestMatchers(antMatcher("/fileAPI/**")).permitAll()
+                .requestMatchers(antMatcher("/vendor/**")).permitAll()
                 .requestMatchers(antMatcher("/css/**")).permitAll()
                 .requestMatchers(antMatcher("/handle-counter/**")).permitAll()
                 .requestMatchers(antMatcher("/img/**")).permitAll()
                 .requestMatchers(antMatcher("/js/**")).permitAll()
                 .requestMatchers(antMatcher("/scss/**")).permitAll()
-                .requestMatchers(antMatcher("/vendor/**")).permitAll()
                 .requestMatchers(antMatcher("/admin/**")).hasRole("ADMIN")
                 .requestMatchers(antMatcher("/Loginmain")).hasAnyRole("USER","ADMIN")
 

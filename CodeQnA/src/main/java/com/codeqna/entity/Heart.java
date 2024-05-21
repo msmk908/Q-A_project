@@ -3,9 +3,10 @@ package com.codeqna.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Getter
+@Getter @Setter
 @NoArgsConstructor
 public class Heart {
     @Id
@@ -14,7 +15,7 @@ public class Heart {
     private Long hno;
 
     @Column(name = "nickname", nullable = false)
-    private Long nickname;
+    private String nickname;
 
     @ManyToOne
     @JoinColumn(name = "bno", nullable = false)

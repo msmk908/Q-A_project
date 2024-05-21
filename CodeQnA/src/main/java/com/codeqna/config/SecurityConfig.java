@@ -53,6 +53,7 @@ public class SecurityConfig {
                 .requestMatchers(antMatcher("/img/**")).permitAll()
                 .requestMatchers(antMatcher("/js/**")).permitAll()
                 .requestMatchers(antMatcher("/scss/**")).permitAll()
+                .requestMatchers(antMatcher("/viewboard/**")).permitAll()
                 .requestMatchers(antMatcher("/admin/**")).hasRole("ADMIN")
                 .requestMatchers(antMatcher("/Loginmain")).hasAnyRole("USER","ADMIN")
 

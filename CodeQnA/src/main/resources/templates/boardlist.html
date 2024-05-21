@@ -126,7 +126,7 @@
                                 </a>
                             </div>
 
-                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <table data-order='[[0, "desc"]]' class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                 <thead>
                                 <tr>
                                     <th>글번호</th>
@@ -269,7 +269,7 @@
                 $('.card-body.board').remove();
 
                 // 새로운 테이블을 만듭니다.
-                var newTable = $('<table class="table table-bordered">').attr('id', 'dataTable').attr('width', '100%').attr('cellspacing', '0');
+                var newTable = $('<table data-order=\'\[\[0, "desc"\]\]\' class="table table-bordered">').attr('id', 'dataTable').attr('width', '100%').attr('cellspacing', '0');
                 var thead = $('<thead>').appendTo(newTable);
                 var tbody = $('<tbody>').appendTo(newTable);
 

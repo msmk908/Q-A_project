@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface BoardRepository extends JpaRepository<Board, Long>, BoardRepositoryCustom {
+
     Board findByBno(Long bno);
 
     // 칼럼에 키워드값이 포함되어 있는 보드리스트

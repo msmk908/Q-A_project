@@ -1,17 +1,21 @@
 package com.codeqna.service;
 
 import com.codeqna.dto.AddBoardRequest;
-import com.codeqna.dto.BoardViewDto;
+import com.codeqna.dto.LogsViewDto;
 import com.codeqna.dto.ModifyBoardRequest;
 import com.codeqna.entity.Board;
+import com.codeqna.entity.Logs;
 import com.codeqna.entity.Uploadfile;
 import com.codeqna.repository.BoardRepository;
+import com.codeqna.repository.LogsRepository;
 import com.codeqna.repository.UploadfileRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,6 +25,7 @@ import java.util.stream.Collectors;
 public class BoardService {
     private final BoardRepository boardRepository;
     private final UploadfileRepository uploadfileRepository;
+    private final LogsRepository logsRepository;
 
     // 게시물 전체 리스트를 가져오기
     public List<Board> getAllBoards() {
@@ -47,7 +52,7 @@ public class BoardService {
         }
     }
 
-    //게시물 상세 페이지 가져오기
+    // 게시물 상세 페이지 가져오기
     public Board findByBno(Long bno) {
         return boardRepository.findByBno(bno);
     }
@@ -120,6 +125,24 @@ public class BoardService {
         Board board = boardRepository.findByBno(bno);
 
         board.decreaseHeart();
+    }
+
+    // 삭제게시물 가져올때 로그와 같이 가져오는 메서드
+    public List<LogsViewDto> getLogWithBoard() {
+        List<LogsViewDto> LogsViews = new ArrayList<>();
+
+        List<Logs> logsList = logsRepository.findAll();
+        for (Logs logs : logsList) {
+            Board board = boardRepository.findByBno(logs.getBoard().getBno());
+            if (board != null) {
+                LocalDateTime deleteTime = logs.getDelete_time();
+                LocalDateTime recoveryTime = logs.getRecover_time();
+                LogsViewDto logView = new LogsViewDto(board, deleteTime, recoveryTime);
+                LogsViews.add(logView);
+            }
+        }
+
+        return LogsViews;
     }
 
 }

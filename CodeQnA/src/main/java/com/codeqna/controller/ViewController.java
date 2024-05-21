@@ -2,7 +2,7 @@ package com.codeqna.controller;
 
 
 import com.codeqna.dto.BoardViewDto;
-import com.codeqna.dto.UserFormDto;
+import com.codeqna.dto.LogsViewDto;
 import com.codeqna.entity.Board;
 import com.codeqna.entity.Reply;
 import com.codeqna.entity.Users;
@@ -10,7 +10,6 @@ import com.codeqna.repository.BoardRepository;
 import com.codeqna.repository.UserRepository;
 import com.codeqna.service.BoardService;
 import com.codeqna.service.ReplyService;
-import com.codeqna.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -54,7 +53,9 @@ public class ViewController {
     }
 
     @GetMapping("/admin/deleted")
-    public String deletedBoard(){
+    public String deletedBoard(Model model){
+        List<LogsViewDto> boards = boardService.getLogWithBoard();
+        model.addAttribute("boards", boards);
         return "admin/deletedBoards";
     }
 

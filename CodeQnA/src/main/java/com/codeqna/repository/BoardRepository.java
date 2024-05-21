@@ -25,4 +25,5 @@ public interface BoardRepository extends JpaRepository<Board, Long>, BoardReposi
     @Modifying
     @Query("update Board set hitcount = hitcount + 1 where bno = :bno")
     void incrementHitCount(@Param("bno") Long bno);
+
 }

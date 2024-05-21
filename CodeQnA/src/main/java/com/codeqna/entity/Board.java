@@ -49,6 +49,9 @@ public class Board {
     @Column(name = "board_condition", nullable = false)
     private String board_condition;
 
+    @OneToOne(mappedBy = "board", cascade = CascadeType.ALL)
+    private Logs logs;
+
     @Builder
     public Board(String title, String content, String hashtag, Long hitcount, Long heart, String nickname, String board_condition){
         this.title = title;

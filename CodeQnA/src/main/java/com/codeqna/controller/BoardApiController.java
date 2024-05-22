@@ -1,11 +1,9 @@
 package com.codeqna.controller;
 
-import com.codeqna.dto.AddBoardRequest;
-import com.codeqna.dto.HeartDto;
-import com.codeqna.dto.ModifyBoardRequest;
-import com.codeqna.dto.ParentReplyDto;
+import com.codeqna.dto.*;
 import com.codeqna.entity.Board;
 import com.codeqna.entity.Heart;
+import com.codeqna.entity.Logs;
 import com.codeqna.service.BoardService;
 import com.codeqna.service.HeartService;
 import com.codeqna.service.ReplyService;
@@ -38,6 +36,21 @@ public class BoardApiController {
     public List<Board> searchBoards(@RequestParam("condition") String condition,
                                     @RequestParam("keyword") String keyword) {
         return boardService.searchBoards(condition, keyword);
+    }
+
+    // 삭제게시물 검색
+    @GetMapping("/searchDeleteTable")
+    public List<LogsViewDto> searchDeleteBoards(@RequestParam("condition") String condition,
+                                                @RequestParam("keyword") String keyword,
+                                                @RequestParam("start") String start,
+                                                @RequestParam("end") String end) {
+
+        if(condition.equals("regdate")||condition.equals("deletetime")||condition.equals("recovertime")){
+            return boardService.searchDateDeleteBoards(condition, start, end);
+        }else {
+            return boardService.searchStringDeleteBoards(condition, keyword);
+        }
+
     }
 
     // 게시물 수정

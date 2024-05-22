@@ -14,7 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,6 +53,53 @@ public class BoardService {
             // 검색 조건이 잘못된 경우 처리
             throw new IllegalArgumentException("Invalid search condition: " + condition);
         }
+    }
+
+    // 삭제게시물에서 검색조건에 맞는 게시물을 가져오기
+    public List<LogsViewDto> searchStringDeleteBoards(String condition, String keyword) {
+        if (condition.equals("title")) {
+            return logsRepository.findLogsByTitle(keyword);
+        } else if (condition.equals("nickname")) {
+            return logsRepository.findLogsByNickname(keyword);
+        } else {
+            // 검색 조건이 잘못된 경우 처리
+            throw new IllegalArgumentException("Invalid search condition: " + condition);
+        }
+    }
+
+    // 날짜 문자열을 LocalDateTime으로 변환하는 유틸리티 메서드
+    private LocalDateTime convertStringToLocalDateTime(String dateStr, boolean isEndOfDay) {
+        LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE);
+        return isEndOfDay ? LocalDateTime.of(localDate, LocalTime.MAX) : LocalDateTime.of(localDate, LocalTime.MIN);
+    }
+
+    // 삭제게시물에서 날짜검색
+    public List<LogsViewDto> searchDateDeleteBoards(String condition, String start, String end) {
+        LocalDateTime startDateTime = convertStringToLocalDateTime(start, false);
+
+        if (end == null || end.isEmpty()) {
+            if (condition.equals("regdate")) {
+                return logsRepository.findLogsByRegdate(startDateTime);
+            } else if (condition.equals("deletetime")) {
+                return logsRepository.findLogsByDeletetime(startDateTime);
+            } else if (condition.equals("recovertime")) {
+                return logsRepository.findLogsByRecovertime(startDateTime);
+            }
+        } else {
+            LocalDateTime endDateTime = convertStringToLocalDateTime(end, true);
+
+            // 기존의 날짜 범위 검색 메서드 호출
+            if (condition.equals("regdate")) {
+                return logsRepository.findLogsByRegdateBetween(startDateTime, endDateTime);
+            } else if (condition.equals("deletetime")) {
+                return logsRepository.findLogsByDeletetimeBetween(startDateTime, endDateTime);
+            } else if (condition.equals("recovertime")) {
+                return logsRepository.findLogsByRecovertimeBetween(startDateTime, endDateTime);
+            }
+        }
+
+        // 검색 조건이 잘못된 경우 처리
+        throw new IllegalArgumentException("Invalid search condition: " + condition);
     }
 
     // 게시물 상세 페이지 가져오기

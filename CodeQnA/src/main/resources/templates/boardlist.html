@@ -292,10 +292,7 @@
                     $('<td>').text(board.hashtag).appendTo(newRow);
                     $('<td>').text(board.hitcount).appendTo(newRow);
                     $('<td>').text(board.heart).appendTo(newRow);
-
-                    // 날짜 포맷팅
-                    var formattedDate = formatDate(new Date(board.regdate));
-                    $('<td>').text(formattedDate).appendTo(newRow);
+                    $('<td>').text(formatDate(new Date(board.regdate))).appendTo(newRow);
 
                     newRow.attr('data-url', '/viewboard/' + board.bno);
                     newRow.click(function () {

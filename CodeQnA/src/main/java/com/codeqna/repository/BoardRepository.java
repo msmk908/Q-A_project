@@ -21,6 +21,7 @@ public interface BoardRepository extends JpaRepository<Board, Long>, BoardReposi
     @Query("SELECT b FROM Board b WHERE b.nickname LIKE %:nickname% AND b.board_condition = :boardCondition")
     List<Board> findByNicknameContaining(@Param("nickname") String keyword, @Param("boardCondition") String boardCondition);
 
+
     @Transactional
     @Modifying
     @Query("update Board set hitcount = hitcount + 1 where bno = :bno")

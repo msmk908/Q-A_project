@@ -385,7 +385,7 @@
 
             // 서버로 선택된 게시물 ID 전송
             $.ajax({
-                url: '/boardAPI/recoverBoard', // 복원 API 엔드포인트 URL
+                url: '/boardAPI/recoverDeleteBoard', // 복원 API 엔드포인트 URL
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(selectedBoards.map(board => board.bno)),

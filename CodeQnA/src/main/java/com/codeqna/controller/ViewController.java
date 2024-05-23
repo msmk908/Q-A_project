@@ -76,7 +76,9 @@ public class ViewController {
     }
 
     @GetMapping("/admin/boards")
-    public String manageBoards(){
+    public String manageBoards(Model model){
+        List<Board> boards = boardService.getAllBoards();
+        model.addAttribute("boards", boards);
         return "admin/manageBoards";
     }
 
@@ -147,6 +149,7 @@ public class ViewController {
             return "error2";
         }
 
+
         //정상적인 페이지로 들어갔을 경우 조회수 + 1
         repository.incrementHitCount(bno);
 
@@ -157,17 +160,12 @@ public class ViewController {
         model.addAttribute("hashtags", hashtagList);
 
         //로그인된 사용자의 nickname을 넘김, 없으면 오류, 빈 값을 넘김
-
-
-        //로그인된 사용자의 nickname을 넘김, 없으면 오류, 빈 값을 넘김
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        Users users = userRepository.findByEmail(email).orElseThrow();
-
-        if(users != null) {
+        if(boardPrincipal!=null) {
+            String email = boardPrincipal.getUsername();
+            Users users = userRepository.findByEmail(email).orElseThrow();
             model.addAttribute("nickname", users.getNickname());
             model.addAttribute("role", users.getUser_role());
-        } else {
+        } else{
             model.addAttribute("nickname", "");
         }
 

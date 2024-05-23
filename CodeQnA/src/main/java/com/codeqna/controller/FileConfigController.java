@@ -28,6 +28,7 @@ public class FileConfigController {
 
     @Autowired
     private FileconfigRepository fileconfigRepository;
+    @Autowired
     private UploadfileRepository uploadfileRepository;
 
     @PostMapping("/saveFileConfig")

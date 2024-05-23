@@ -118,13 +118,31 @@ public class BoardService {
         return modifiedBoard;
     }
 
-    //게시물 삭제
+    // 유저가 게시물을 삭제한 경우
     @Transactional //이게 왜 붙어야하는지 모르겠음
     public void deleteBoard(Long bno) {
-        System.out.println("요까지2");
         Board board = boardRepository.findByBno(bno);
 
         board.deleteBoard();
+    }
+
+    // 관리자가 게시물을 삭제한 경우
+    @Transactional 
+    public void deleteBoardAdmin(Long bno) {
+        Board board = boardRepository.findByBno(bno);
+
+        if (board != null) {
+            // 게시물 삭제 상태로 변경
+            board.deleteBoard();
+
+            // 로그 생성 및 저장
+            Logs log = new Logs();
+            log.setBoard(board);
+            log.setDelete_time(LocalDateTime.now());
+            logsRepository.save(log);
+        } else {
+            throw new IllegalArgumentException("Invalid board Id: " + bno);
+        }
     }
 
     //게시물 좋아요
@@ -203,15 +221,53 @@ public class BoardService {
         }
     }
 
+    // 게시판관리 String 검색
+    public List<Board> searchStringBoards(String condition, String keyword){
+        if (condition.equals("title")) {
+            return boardRepository.findByBoardTitleContaining(keyword);
+        } else if (condition.equals("nickname")) {
+            return boardRepository.findByBoardNicknameContaining(keyword);
+        } else {
+            // 검색 조건이 잘못된 경우 처리
+            throw new IllegalArgumentException("Invalid search condition: " + condition);
+        }
+    }
+
+    // 게시판관리 Date 검색
+    public List<Board> searchDateBoards(String condition, String start, String end) {
+        LocalDateTime startDateTime = convertStringToLocalDateTime(start, false);
+
+        if (end == null || end.isEmpty()) {
+            if (condition.equals("regdate")) {
+                return boardRepository.findByBoardRegdate(startDateTime);
+            }
+        } else {
+            LocalDateTime endDateTime = convertStringToLocalDateTime(end, true);
+
+            // 기존의 날짜 범위 검색 메서드 호출
+            if (condition.equals("regdate")) {
+                return boardRepository.findByBoardRegdateBetween(startDateTime, endDateTime);
+            }
+        }
+
+        // 검색 조건이 잘못된 경우 처리
+        throw new IllegalArgumentException("Invalid search condition: " + condition);
+    }
+
+    // 게시판관리 라디오 검색
+    public List<Board> searchRadioDeleteBoards(String deleteCondition){
+        return boardRepository.findByBoardconditionContaining(deleteCondition);
+    }
+
     // 날짜 문자열을 LocalDateTime으로 변환하는 유틸리티 메서드
     private LocalDateTime convertStringToLocalDateTime(String dateStr, boolean isEndOfDay) {
         LocalDate localDate = LocalDate.parse(dateStr, DateTimeFormatter.ISO_DATE);
         return isEndOfDay ? LocalDateTime.of(localDate, LocalTime.MAX) : LocalDateTime.of(localDate, LocalTime.MIN);
     }
 
-    // 삭제게시물을 복원하는 메서드
+    // 삭제게시물 복원하는 메서드
     @Transactional
-    public void recoverBoards(List<Long> bnos) {
+    public void recoverDeleteBoards(List<Long> bnos) {
         for (Long bno : bnos) {
             Board board = boardRepository.findByBno(bno);
             if (board != null) {
@@ -228,6 +284,38 @@ public class BoardService {
             }
         }
     }
+
+    // 관리자가 게시물을 삭제한 경우
+    @Transactional
+    public void checkedDeleteBoardAdmin(List<Long> bnos) {
+        for (Long bno : bnos) {
+            Board board = boardRepository.findByBno(bno);
+            if (board != null) {
+                // 게시물 삭제 상태로 변경
+                board.deleteBoard();
+
+                // 로그 생성 및 저장
+                Logs existingLog = logsRepository.findByBoard(board);
+                if (existingLog != null) {
+                    // 이미 존재하는 로그가 있으면 업데이트
+                    existingLog.setDelete_time(LocalDateTime.now());
+                    existingLog.setRecover_time(null); // 복원일시를 null로 설정
+                    logsRepository.save(existingLog);
+                } else {
+                    // 존재하지 않는 경우 새로운 로그 생성
+                    Logs newLog = new Logs();
+                    newLog.setBoard(board);
+                    newLog.setDelete_time(LocalDateTime.now());
+                    logsRepository.save(newLog);
+                }
+
+            }else {
+                throw new IllegalArgumentException("Invalid board Id: " + bno);
+            }
+
+        }
+    }
+
 
 }
 

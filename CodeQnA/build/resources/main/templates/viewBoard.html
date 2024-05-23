@@ -12,6 +12,21 @@
 </style>
 
 <script>
+    // JavaScript 코드 추가
+    document.addEventListener("DOMContentLoaded", function() {
+        // 현재 사용자의 닉네임과 역할 가져오기
+        const nickname = document.getElementById('nickname').value;
+        const userRole = document.getElementById('userRole').value;
+
+        // 확인용 콘솔 출력
+        console.log("현재 사용자 닉네임:", nickname);
+        console.log("현재 사용자 역할:", userRole);
+
+        // 비교
+        console.log("nickname != board.nickname:", nickname !== board.nickname);
+        console.log("role != 'ADMIN':", userRole !== 'ADMIN');
+    });
+
     document.addEventListener("DOMContentLoaded", function() {
         // JavaScript로 버튼을 클릭할 때마다 색상을 변경하고 좋아요 카운트를 증가 또는 감소시킵니다.
         var heartButton = document.getElementById("heartButton");
@@ -97,149 +112,36 @@
                 });
         });
 
-
-        // // 댓글 등록 함수
-        // function addComment() {
-        //     var commentInput = document.getElementById("commentInput").value.trim();
-        //     if (commentInput === "") {
-        //         alert("댓글 내용을 입력하세요.");
-        //     } else {
-        //         /*var bno = document.getElementById('boardBno').value;*/
-        //         var data = {
-        //             bno : bno,
-        //             nickname : document.getElementById("nickname").value,
-        //             content : commentInput,
-        //             //parent_id : "", //생각해보니 댓글은 부모가 없고 답글만 부모가 있음
-        //             //regdate : new Date().toISOString() //생성일도 서버에서 해주는 거
-        //         };
-        //
-        //         fetch("/boardAPI/comment/add", {
-        //             method : 'POST',
-        //             headers : {
-        //                 'Content-Type' : 'application/json',
-        //             },
-        //             body : JSON.stringify(data),
-        //         })
-        //
-        //         var commentList = document.querySelector(".comment_list");
-        //         var newCommentItem = document.createElement("li");
-        //         var regdate = new Date();
-        //         var formattedDate = formatDate(regdate);
-        //         newCommentItem.classList.add("row");
-        //         newCommentItem.innerHTML = `
-        //             <div class="col-md-2">${nickname}</div>
-        //             <div class="col-md-6">${commentInput}</div>
-        //             <div class="col-md-2">${formattedDate}</div>
-        //             <div class="col-md-2">
-        //               <button class="btn btn-danger btn-sm">삭제</button>
-        //               <button class="btn btn-secondary btn-sm reply-btn">답글</button>
-        //             </div>
-        //             <ul class="reply_list" style="margin-left: 20px; width: 1300px;"></ul>
-        //         `;
-        //         commentList.appendChild(newCommentItem);
-        //         // 입력창 비우기
-        //         document.getElementById("commentInput").value = "";
-        //     }
-        // }
-        //
-        // // 댓글 등록 버튼 클릭 이벤트 처리
-        // document.getElementById("commentButton").addEventListener("click", function() {
-        //     addComment();
-        // });
-        //
-        // // 댓글 입력 필드 엔터 키 이벤트 처리
-        // document.getElementById("commentInput").addEventListener("keydown", function(event) {
-        //     if (event.key === "Enter") {
-        //         event.preventDefault();
-        //         addComment();
-        //     }
-        // });
-        //
-        // // 댓글 삭제 함수
-        // function deleteComment(event) {
-        //     var commentItem = event.target.closest(".row");
-        //     if (commentItem) {
-        //         commentItem.remove();
-        //     }
-        // }
-        //
-        // // 댓글 삭제 버튼 클릭 이벤트 처리 (동적으로 추가된 요소에 대한 이벤트 위임)
-        // document.querySelector(".comment_list").addEventListener("click", function(event) {
-        //     if (event.target.classList.contains("btn-danger")) {
-        //         deleteComment(event);
-        //     }
-        // });
-        //
-        // //------------------------------------------------------
-        // //답글 등록
-        // document.addEventListener("click", function(event) {
-        //     if (event.target.classList.contains("reply-btn")) {
-        //         var parentComment = event.target.closest("li");
-        //         var replyList = parentComment.querySelector(".reply_list");
-        //
-        //         // 기존의 답글 입력창이 있는지 확인합니다.
-        //         var existingReplyForm = replyList.querySelector(".input-group");
-        //
-        //         if (existingReplyForm) {
-        //             // 이미 존재하면 제거합니다.
-        //             replyList.removeChild(existingReplyForm);
-        //         } else {
-        //             var replyInput = document.createElement("input");
-        //             replyInput.type = "text";
-        //             replyInput.className = "form-control my-2 reply-input";
-        //             replyInput.placeholder = "답글 내용을 입력하세요.";
-        //
-        //             var replyButton = document.createElement("button");
-        //             replyButton.className = "btn btn-secondary btn-sm mb-2";
-        //             replyButton.innerText = "답글 등록";
-        //
-        //             var replyForm = document.createElement("div");
-        //             replyForm.className = "input-group";
-        //             replyForm.appendChild(replyInput);
-        //             replyForm.appendChild(replyButton);
-        //
-        //             replyList.appendChild(replyForm);
-        //
-        //             replyButton.addEventListener("click", function () {
-        //                 var replyText = replyInput.value.trim();
-        //                 var regdate = new Date();
-        //                 var formattedDate = formatDate(regdate);
-        //                 if (replyText === "") {
-        //                     alert("답글 내용을 입력하세요.");
-        //                 } else {
-        //                     var newReplyItem = document.createElement("li");
-        //                     newReplyItem.className = "row";
-        //                     newReplyItem.innerHTML = `
-        //                         <div class="col-md-2">${nickname}</div>
-        //                         <div class="col-md-6">${replyText}</div>
-        //                         <div class="col-md-2">${formattedDate}</div>
-        //                         <div class="col-md-2">
-        //                             <button class="btn btn-danger btn-sm">삭제</button>
-        //                         </div>
-        //                     `;
-        //                     replyList.appendChild(newReplyItem);
-        //                     replyList.removeChild(replyForm);
-        //                 }
-        //             });
-        //         }
-        //     }
-        // });
-        //------------------------------------------------------
-
-
         //게시물 삭제
+        const userRole = document.getElementById('userRole').value;
+        console.log(userRole);
         const deleteButton = document.getElementById('deleteBoard');
         if(deleteButton) {
-            deleteButton.addEventListener('click', (event) =>{
-                if(confirm('정말 삭제하시겠습니까?')) {
-                    let bno = document.getElementById('boardBno').value;
-                    fetch(`/boardAPI/delete/${bno}`, {
-                        method: 'PUT'
-                    })
-                        .then(()=> {
-                            alert('삭제가 완료되었습니다.');
-                            location.replace('/main');
-                        });
+            deleteButton.addEventListener('click', (event) => {
+                let bno = document.getElementById('boardBno').value;
+
+                if (userRole === 'ADMIN') {
+                    console.log("관리자");
+                    if (confirm('정말 삭제하시겠습니까?')) {
+                        fetch(`/boardAPI/deleteAdmin/${bno}`, {
+                            method: 'PUT'
+                        })
+                            .then(() => {
+                                alert('삭제가 완료되었습니다.');
+                                location.replace('/main');
+                            });
+                    }
+                } else if (userRole === 'USER') {
+                    console.log("유저");
+                    if (confirm('정말 삭제하시겠습니까?')) {
+                        fetch(`/boardAPI/delete/${bno}`, {
+                            method: 'PUT'
+                        })
+                            .then(() => {
+                                alert('삭제가 완료되었습니다.');
+                                location.replace('/main');
+                            });
+                    }
                 }
             });
         }
@@ -298,6 +200,7 @@
             <div class="container-fluid">
                 <input type="hidden" id="nickname" th:value="${nickname}">
                 <input type="hidden" id="boardBno" th:value="${board.bno}">
+                <input type="hidden" id="userRole" th:value="${role}">
                 <h1 class="h3 mb-1 text-gray-800" th:text="${board.title}"></h1>
                 <div class="row">
                     <div class="col-lg-4">
@@ -344,7 +247,7 @@
                                 th:onclick="|location.href='@{/modifyboard?bno={bno}(bno=${board.bno})}'|"
                                 th:disabled="${nickname != board.nickname}">수정</button>
                         <button id="deleteBoard" class="btn btn-danger"
-                                th:disabled="${nickname != board.nickname && nickname != 'admin'}">삭제</button>
+                                th:disabled="${nickname != board.nickname && role != 'ADMIN'}">삭제</button>
                         <button th:onclick="|location.href='@{/main}'|" class="btn btn-secondary">목록</button>
                     </div>
                 </div>

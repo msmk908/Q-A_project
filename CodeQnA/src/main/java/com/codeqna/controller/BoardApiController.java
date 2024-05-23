@@ -49,11 +49,18 @@ public class BoardApiController {
     }
 
 
-    //게시물 삭제
+    // 유저가 게시물 삭제
     @PutMapping("/delete/{bno}")
     public ResponseEntity<Void> delete(@PathVariable Long bno) {
         boardService.deleteBoard(bno);
-        System.out.println("요까지1");
+
+        return ResponseEntity.ok().build();
+    }
+
+    // 관리자가 게시물 삭제
+    @PutMapping("/deleteAdmin/{bno}")
+    public ResponseEntity<Void> deleteAdmin(@PathVariable Long bno) {
+        boardService.deleteBoardAdmin(bno);
 
         return ResponseEntity.ok().build();
     }
@@ -112,23 +119,57 @@ public class BoardApiController {
 
         if(condition.equals("regdate")||condition.equals("deletetime")||condition.equals("recovertime")){
             return boardService.searchDateDeleteBoards(condition, start, end);
-        }else {
+        } else {
             return boardService.searchStringDeleteBoards(condition, keyword);
         }
 
     }
 
+    // 삭제게시물 검색
+    @GetMapping("/searchManageBoardTable")
+    public List<Board> searchManageBoardTable(@RequestParam("condition") String condition,
+                                                    @RequestParam("keyword") String keyword,
+                                                    @RequestParam("start") String start,
+                                                    @RequestParam("end") String end,
+                                                    @RequestParam("deleteCondition") String deleteCondition) {
+
+        if(condition.equals("regdate")){
+            return boardService.searchDateBoards(condition, start, end);
+        } else if (condition.equals("boardcondition")) {
+            return boardService.searchRadioDeleteBoards(deleteCondition);
+        } else {
+            return boardService.searchStringBoards(condition, keyword);
+        }
+
+    }
+
+
+
     // 삭제게시물 복원 요청
-    @PostMapping("/recoverBoard")
-    public ResponseEntity<String> recoverBoard(@RequestBody List<Long> bnos) {
+    @PostMapping("/recoverDeleteBoard")
+    public ResponseEntity<String> recoverDeleteBoard(@RequestBody List<Long> bnos) {
         if (bnos == null || bnos.isEmpty()) {
             return ResponseEntity.badRequest().body("No boards selected for recovery");
         }
         try {
-            boardService.recoverBoards(bnos);
+            boardService.recoverDeleteBoards(bnos);
             return ResponseEntity.ok("Boards recovered successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error recovering boards");
+        }
+    }
+
+    // 관리자가 게시물 삭제 요청
+    @PostMapping("/deleteAdminBoard")
+    public ResponseEntity<String> deleteAdminBoard(@RequestBody List<Long> bnos) {
+        if (bnos == null || bnos.isEmpty()) {
+            return ResponseEntity.badRequest().body("No boards selected for recovery");
+        }
+        try {
+            boardService.checkedDeleteBoardAdmin(bnos);
+            return ResponseEntity.ok("Boards deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting boards");
         }
     }
 

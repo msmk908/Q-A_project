@@ -1,6 +1,7 @@
 package com.codeqna.repository;
 
 import com.codeqna.dto.LogsViewDto;
+import com.codeqna.entity.Board;
 import com.codeqna.entity.Logs;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface LogsRepository extends JpaRepository<Logs, Long> {
+    Logs findByBoard(Board board);
 
     @Query("SELECT new com.codeqna.dto.LogsViewDto(b, l.delete_time, l.recover_time) " +
             "FROM Logs l INNER JOIN l.board b WHERE b.title LIKE %:keyword%")

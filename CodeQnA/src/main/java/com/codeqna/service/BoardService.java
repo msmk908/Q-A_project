@@ -195,5 +195,25 @@ public class BoardService {
         return LogsViews;
     }
 
+    // 삭제게시물을 복원하는 메서드
+    @Transactional
+    public void recoverBoards(List<Long> bnos) {
+        for (Long bno : bnos) {
+            Board board = boardRepository.findByBno(bno);
+            if (board != null) {
+                // 복원일시 업데이트
+                Logs log = logsRepository.findByBoard(board);
+                if (log != null) {
+                    log.setRecover_time(LocalDateTime.now());
+                    logsRepository.save(log);
+                }
+
+                // 게시물 상태 업데이트
+                board.setBoard_condition("N");
+                boardRepository.save(board);
+            }
+        }
+    }
+
 }
 

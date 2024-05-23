@@ -10,9 +10,11 @@ import com.codeqna.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/boardAPI")
@@ -51,6 +53,26 @@ public class BoardApiController {
             return boardService.searchStringDeleteBoards(condition, keyword);
         }
 
+    }
+
+    // 삭제게시물 전체 불러오는 메서드
+    @GetMapping("/deleted")
+    public List<LogsViewDto> deletedBoard(){
+        return boardService.getLogWithBoard();
+    }
+
+    // 삭제게시물 복원 요청
+    @PostMapping("/recoverBoard")
+    public ResponseEntity<String> recoverBoard(@RequestBody List<Long> bnos) {
+        if (bnos == null || bnos.isEmpty()) {
+            return ResponseEntity.badRequest().body("No boards selected for recovery");
+        }
+        try {
+            boardService.recoverBoards(bnos);
+            return ResponseEntity.ok("Boards recovered successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error recovering boards");
+        }
     }
 
     // 게시물 수정

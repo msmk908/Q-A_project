@@ -40,6 +40,9 @@
     <!-- Page level custom scripts -->
     <script src="/js/demo/datatables-demo.js"></script>
 
+    <!-- 엑셀 다운 SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+
 
 
 </head>
@@ -78,7 +81,7 @@
                                 <option value="nickname">작성자</option>
                                 <option value="regdate">생성일시</option>
                                 <option value="deletetime">삭제일시</option>
-                                <option value="recovertime">복구일시</option>
+                                <option value="recovertime">복원일시</option>
                             </select>
                                 <!-- 검색어 입력란 -->
                                 <input type="text" class="form-control" placeholder="검색어를 입력해주세요." id="searchKeyword">
@@ -96,8 +99,8 @@
 
                             <ul>
                             <!--버튼-->
-                                <button class="btn btn-warning btn-icon-split" style="padding: 5px">게시물 복원</button>
-                                <button class="btn btn-info btn-icon-split" style="padding: 5px">엑셀 저장</button>
+                                <button class="btn btn-warning btn-icon-split recover-btn" style="padding: 5px">게시물 복원</button>
+                                <button id="exportExcelButton" class="btn btn-info btn-icon-split" style="padding: 5px">엑셀 저장</button>
                             </ul>
 
 
@@ -157,21 +160,6 @@
     <i class="fas fa-angle-up"></i>
 </a>
 
-<!-- 테이블 클릭했을때 상세정보로 넘어가는 스크립트 -->
-<!--<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var rows = document.querySelectorAll("tr[data-url]");
-        rows.forEach(function (row) {
-            row.addEventListener("click", function () {
-                var url = row.getAttribute("data-url");
-                if (url) {
-                    window.location.href = url;
-                }
-            });
-        });
-    });
-</script>-->
-
 <!-- 검색조건에 따라 입력창 띄우는 스크립트 -->
 <script>
     // 페이지 로드 시 실행
@@ -206,7 +194,14 @@
 
 <!-- 검색에 따라 테이블을 띄워주는 스크립트 -->
 <script>
+    // 전역 변수로 excelBoard를 선언하여 페이지 로드 시에 가져온 데이터를 저장합니다.
+    var excelBoard = [];
+
     $(document).ready(function() {
+        // 페이지 로드 시 초기 데이터를 가져와서 excelBoard에 저장합니다.
+        deleteTableData();
+
+        // 검색 버튼 클릭 이벤트 핸들러를 등록합니다.
         $('#searchButton').click(function() {
             var searchCondition = $('#searchCondition').val();
             var searchKeyword = $('#searchKeyword').val();
@@ -237,6 +232,24 @@
         });
     });
 
+    // 초기 데이터를 가져와서 excelBoard에 저장하는 함수
+    function deleteTableData() {
+        // AJAX를 사용하여 초기 데이터를 가져옵니다.
+        $.ajax({
+            url: '/boardAPI/deleted', // deleted 엔드포인트 URL
+            type: 'GET',
+            success: function(data) {
+                // 가져온 데이터를 excelBoard에 저장합니다.
+                excelBoard = data;
+                console.log(excelBoard);
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr);
+            }
+        });
+    }
+
+    // 검색결과에 따라 테이블을 띄워주는 함수
     function filterTable(searchCondition, searchKeyword, starttime, endtime) {
         // AJAX를 사용하여 서버에 검색 요청을 보냅니다.
         $.ajax({
@@ -244,10 +257,12 @@
             type: 'GET',
             data: { condition: searchCondition, keyword: searchKeyword, start: starttime, end: endtime },
             success: function (data) {
+                // 검색 결과를 excelBoard에 업데이트합니다.
+                excelBoard = data;
+                console.log(data);
+
                 // 검색 결과를 받아옵니다.
                 var searchData = data;
-
-                console.log(data);
 
                 // 기존 테이블을 삭제합니다.
                 $('.table-responsive').empty();
@@ -279,12 +294,16 @@
                     $('<td>').text(formatDate(new Date(board.regdate))).appendTo(newRow);
                     $('<td>').text(board.hitcount).appendTo(newRow);
                     $('<td>').text(board.heart).appendTo(newRow);
-                    $('<td>').text(formatDate(new Date(board.deleteTime))).appendTo(newRow); // 삭제일시
-                    $('<td>').text(formatDate(new Date(board.recoverTime))).appendTo(newRow); // 복원일시
-
-                    newRow.click(function () {
-                        window.location.href = $(this).attr('data-url');
-                    });
+                    if(board.deleteTime ==null){
+                        $('<td>').text("").appendTo(newRow);
+                    }else{
+                        $('<td>').text(formatDate(new Date(board.deleteTime))).appendTo(newRow);
+                    }
+                    if(board.recoveryTime ==null){
+                        $('<td>').text("").appendTo(newRow);
+                    }else{
+                        $('<td>').text(formatDate(new Date(board.recoveryTime))).appendTo(newRow);
+                    }
                 });
 
                 tableResponsive = $('<div>').appendTo($('.table-responsive'));
@@ -327,6 +346,86 @@
         var seconds = ('0' + date.getSeconds()).slice(-2);
 
         return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+    }
+</script>
+
+<!-- 게시물 복원을 클릭했을때 이벤트 -->
+<script>
+    $(document).ready(function() {
+        // "게시물 복원" 버튼 클릭 이벤트 핸들러
+        $('.recover-btn').click(function() {
+            // 체크된 체크박스 항목들을 선택
+            var selectedBoards = [];
+            var recoveryDates = [];
+            $('#dataTable tbody input[type="checkbox"]:checked').each(function() {
+                // 선택된 체크박스의 부모 tr의 데이터를 가져옴
+                var boardRow = $(this).closest('tr');
+                // 게시물 번호(bno)를 수집
+                var bno = boardRow.find('td:nth-child(2)').text(); // 번호가 2번째 열에 있다고 가정
+                var recoveryDate = boardRow.find('td:nth-child(9)').text(); // 복원일시
+                selectedBoards.push({ bno: bno });
+                recoveryDates.push({ recoveryDate: recoveryDate })
+                console.log(selectedBoards);
+            });
+
+            // 선택된 게시물이 없는 경우 알림
+            if (selectedBoards.length === 0) {
+                alert("복원할 게시물을 선택해주세요.");
+                return;
+            }
+
+            // 복원일시가 있는 경우 알림
+            var alreadyRestored = recoveryDates.some(function(board) {
+                return board.recoveryDate !== '';
+            });
+            if (alreadyRestored) {
+                alert("선택한 게시물 중 이미 복원된 게시물이 포함되어 있습니다.");
+                return;
+            }
+
+            // 서버로 선택된 게시물 ID 전송
+            $.ajax({
+                url: '/boardAPI/recoverBoard', // 복원 API 엔드포인트 URL
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(selectedBoards.map(board => board.bno)),
+                success: function(response) {
+                    // 성공적으로 복원되면 알림 및 페이지 새로고침
+                    alert("선택된 게시물이 복원되었습니다.");
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    // 에러 처리
+                    console.error(xhr);
+                    console.error(status);
+                    console.error(error);
+                    alert("게시물 복원 중 오류가 발생했습니다.");
+                }
+            });
+        });
+    });
+</script>
+
+<!-- 엑셀 저장 버튼 클릭 이벤트 -->
+<script>
+    // Excel 저장 버튼 클릭 이벤트 핸들러 등록
+    $('#exportExcelButton').click(function() {
+        exportToExcel(excelBoard);
+    });
+
+    // Excel로 내보내는 함수
+    function exportToExcel(data) {
+        // Excel 파일을 생성할 새로운 워크북을 생성합니다.
+        var workbook = XLSX.utils.book_new();
+
+        // 데이터를 Excel 시트로 변환합니다.
+        var sheet = XLSX.utils.json_to_sheet(data);
+
+        // 시트를 워크북에 추가합니다.
+        XLSX.utils.book_append_sheet(workbook, sheet, 'Sheet1');
+
+        // Excel 파일을 내보냅니다.
+        XLSX.writeFile(workbook, 'exported_data.xlsx');
     }
 </script>
 

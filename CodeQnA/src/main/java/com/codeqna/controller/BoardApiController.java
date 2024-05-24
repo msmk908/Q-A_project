@@ -128,10 +128,10 @@ public class BoardApiController {
     // 삭제게시물 검색
     @GetMapping("/searchManageBoardTable")
     public List<Board> searchManageBoardTable(@RequestParam("condition") String condition,
-                                                    @RequestParam("keyword") String keyword,
-                                                    @RequestParam("start") String start,
-                                                    @RequestParam("end") String end,
-                                                    @RequestParam("deleteCondition") String deleteCondition) {
+                                              @RequestParam("keyword") String keyword,
+                                              @RequestParam("start") String start,
+                                              @RequestParam("end") String end,
+                                              @RequestParam(value = "deleteCondition", required = false, defaultValue = "defaultCondition") String deleteCondition) {
 
         if(condition.equals("regdate")){
             return boardService.searchDateBoards(condition, start, end);

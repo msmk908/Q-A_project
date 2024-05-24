@@ -220,10 +220,14 @@
         $('input[name="deleteCheckbox"]').change(function() {
             triggerSearch();
         });
-
         // 검색 버튼 클릭 이벤트 핸들러를 등록합니다.
         $('#searchButton').click(function() {
             triggerSearch();
+        });
+        $('#searchKeyword').keydown(function(event) {
+            if (event.keyCode === 13) { // Enter 키 코드는 13입니다.
+                triggerSearch();
+            }
         });
 
         function triggerSearch() {
@@ -233,11 +237,13 @@
             var endtime = $('#endTime').val();
             var deleteCondition = $('input[name="deleteCheckbox"]:checked').val();
 
-            if (searchCondition === "regdate" || searchCondition === "deletetime" || searchCondition === "recovertime") {
+            if (searchCondition === "regdate") {
                 if (!starttime) {
                     alert("시작날짜를 선택해주세요");
                     return;
                 }
+            } else if(searchCondition === "boardcondition"){
+                console.log(deleteCondition);
             } else {
                 if (!searchKeyword) {
                     alert("검색어를 입력하세요");
@@ -251,6 +257,7 @@
 
     // 검색결과에 따라 테이블을 띄워주는 함수
     function filterTable(searchCondition, searchKeyword, starttime, endtime, deleteCondition) {
+        console.log("검색이벤트 실행");
         // AJAX를 사용하여 서버에 검색 요청을 보냅니다.
         $.ajax({
             url: '/boardAPI/searchManageBoardTable', // 검색을 처리하는 서버 엔드포인트 URL

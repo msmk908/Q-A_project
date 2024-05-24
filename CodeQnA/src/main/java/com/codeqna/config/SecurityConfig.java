@@ -85,6 +85,7 @@ public class SecurityConfig {
                 .requestMatchers(antMatcher("/viewboard/**")).permitAll()
                 .requestMatchers(antMatcher("/admin/**")).hasRole("ADMIN")
                 .requestMatchers(antMatcher("/Loginmain")).hasAnyRole("USER","ADMIN")
+                .requestMatchers(antMatcher("/files/**")).permitAll()
 
                 .anyRequest().authenticated();
         });

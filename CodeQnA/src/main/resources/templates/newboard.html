@@ -144,8 +144,21 @@
 <script>
     $(document).ready(function(){
 
-        // 추가 버튼 클릭 시
-        $('#newhashtag').click(function(){
+            // 해시태그 추가 버튼 클릭 시
+            $('#newhashtag').click(function(){
+                addHashtag();
+            });
+
+            // 해시태그 입력 필드에서 엔터 키 눌렀을 때
+            $('#hashtag').keypress(function(event){
+                // 엔터 키의 keyCode는 13입니다.
+                if(event.which === 13) {
+                    addHashtag();
+                }
+            });
+
+            // 해시태그 추가 함수
+            function addHashtag(){
             // 입력한 해시태그 텍스트 가져오기
             var hashtagText = $('#hashtag').val().trim();
             // 정규표현식을 사용하여 유효성 검사
@@ -177,7 +190,7 @@
                 // 유효성 검사 실패 시 경고 메시지 표시
                 alert('한글이나 영어 10글자 이내로 입력해주세요');
             }
-        });
+        }
 
         // 삭제 버튼 클릭 시
         $(document).on('click', '.btn-icon-split', function(){
@@ -266,7 +279,17 @@
     if (createButton) {
         // 클릭 이벤트가 감지되면 생성 API 요청
         createButton.addEventListener("click", async (event) => {
-            console.log(document.getElementById("nickname").value);
+            event.preventDefault();
+
+            let content = editor.getHTML();
+            // 정규표현식을 사용하여 주민등록번호를 찾아 마스킹 처리
+            content = content.replace(/\b(\d{6})(\d{7})\b/g, function(_, p1, p2) {
+                return p1 + '*******';
+            });
+            content = content.replace(/\b(\d{6})[- ]?(\d{7})\b/g, function(_, p1, p2) {
+                return p1 + (p2 ? '-*******' : '*******');
+            });
+
             // 해시태그들을 담을 문자열 변수
             let hashtags = "";
             // 해시태그 목록 요소들을 선택
@@ -278,6 +301,15 @@
                 hashtags += hashtagText; // 해시태그 추가
             });
 
+            // 제목, 내용 입력 여부 확인
+            if (document.getElementById("title").value.trim() === '') {
+                alert('제목을 입력하세요.');
+                return;
+            }else if(content === '<p><br></p>'){
+                alert('내용을 입력하세요.');
+                return;
+            }
+
             const response = await fetch("/boardAPI/register", {
                 method: "POST",
                 headers: {
@@ -286,7 +318,7 @@
                 body: JSON.stringify({
                     title: document.getElementById("title").value, // 제목 데이터 model에 추가
                     nickname: document.getElementById("nickname").value,
-                    content: editor.getHTML(), // 본문 내용 추가
+                    content: content, // 본문 내용 추가
                     hashtag: hashtags,
                     heart: 0,
                     hitcount: 0,

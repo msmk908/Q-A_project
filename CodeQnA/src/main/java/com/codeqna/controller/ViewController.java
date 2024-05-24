@@ -9,14 +9,17 @@ import com.codeqna.dto.response.ArticleCommentResponse;
 import com.codeqna.dto.security.BoardPrincipal;
 import com.codeqna.entity.Board;
 import com.codeqna.entity.Reply;
+import com.codeqna.entity.Uploadfile;
 import com.codeqna.entity.Users;
 import com.codeqna.repository.BoardRepository;
+import com.codeqna.repository.UploadfileRepository;
 import com.codeqna.repository.UserRepository;
 import com.codeqna.service.ArticleCommentService;
 import com.codeqna.service.BoardService;
 import com.codeqna.service.ReplyService;
 import com.codeqna.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,6 +45,10 @@ public class ViewController {
     private final ReplyService replyService;
     private final ArticleCommentService articleCommentService;
     private final UserService userService;
+    private final UploadfileRepository uploadfileRepository;
+
+    @Value("${upload.path}")
+    private String uploadPath;
 
     @GetMapping("/main")
     public String boardList(Model model) {
@@ -168,6 +175,13 @@ public class ViewController {
         } else{
             model.addAttribute("nickname", "");
         }
+
+        // 파일정보 가져오는 부분
+        List<Uploadfile> uploadfiles = uploadfileRepository.findByBoard_Bno(bno);
+
+        model.addAttribute("uploadPath", uploadPath);
+
+        model.addAttribute("files", uploadfiles);
 
         model.addAttribute("board", board);
 

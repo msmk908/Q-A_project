@@ -322,12 +322,32 @@
 
     if (modifyButton) {
         modifyButton.addEventListener("click", async (event) => {
+            event.preventDefault();
+
+            let content = editor.getHTML();
+            // 정규표현식을 사용하여 주민등록번호를 찾아 마스킹 처리
+            content = content.replace(/\b(\d{6})(\d{7})\b/g, function(_, p1, p2) {
+                return p1 + '*******';
+            });
+            content = content.replace(/\b(\d{6})[- ]?(\d{7})\b/g, function(_, p1, p2) {
+                return p1 + (p2 ? '-*******' : '*******');
+            });
+
             let hashtags = "";
             const hashtagElements = document.querySelectorAll('.hashtag-list .btn-primary');
             hashtagElements.forEach((element, index) => {
                 const hashtagText = element.querySelector('.text').innerText;
                 hashtags += hashtagText;
             });
+
+            // 제목, 내용 입력 여부 확인
+            if (document.getElementById("title").value.trim() === '') {
+                alert('제목을 입력하세요.');
+                return;
+            }else if(content === '<p><br></p>'){
+                alert('내용을 입력하세요.');
+                return;
+            }
 
             try {
                 await Promise.all(deletedFiles.map(fileName => {
@@ -345,7 +365,7 @@
                         bno: document.getElementById("bno").value,
                         title: document.getElementById("title").value,
                         nickname: document.getElementById("nickname").value,
-                        content: editor.getHTML(),
+                        content: content,
                         hashtag: hashtags,
                         heart: document.getElementById('heart').value,
                         hitcount: document.getElementById('hitcount').value,

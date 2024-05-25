@@ -2,6 +2,14 @@
 <html lang="en">
 <head>
 
+
+    <style>
+        .dz-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -21,15 +29,6 @@
 
     <!-- SB Admin2 css -->
     <link href="/css/sb-admin-2.min.css" rel="stylesheet">
-
-    <!-- 수정페이지에서 등록된 사진이 제대로 보이도록하는 css -->
-    <style>
-        .dz-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-    </style>
 
 </head>
 
@@ -185,8 +184,21 @@
 
     $(document).ready(function(){
 
-        // 추가 버튼 클릭 시
+        // 해시태그 추가 버튼 클릭 시
         $('#newhashtag').click(function(){
+            addHashtag();
+        });
+
+        // 해시태그 입력 필드에서 엔터 키 눌렀을 때
+        $('#hashtag').keypress(function(event){
+            // 엔터 키의 keyCode는 13입니다.
+            if(event.which === 13) {
+                addHashtag();
+            }
+        });
+
+        // 추가 버튼 클릭 시
+        function addHashtag(){
             // 입력한 해시태그 텍스트 가져오기
             var hashtagText = $('#hashtag').val().trim();
             // 정규표현식을 사용하여 유효성 검사
@@ -218,7 +230,7 @@
                 // 유효성 검사 실패 시 경고 메시지 표시
                 alert('한글이나 영어 10글자 이내로 입력해주세요');
             }
-        });
+        }
 
         // 삭제 버튼 클릭 시
         $(document).on('click', '.btn-icon-split', function(){

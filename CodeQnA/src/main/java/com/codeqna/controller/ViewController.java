@@ -3,9 +3,11 @@ package com.codeqna.controller;
 
 import com.codeqna.dto.BoardViewDto;
 import com.codeqna.dto.LogsViewDto;
+import com.codeqna.dto.RepliesViewDto;
 import com.codeqna.dto.UserFormDto;
 import com.codeqna.dto.request.ArticleCommentRequest;
 import com.codeqna.dto.response.ArticleCommentResponse;
+import com.codeqna.dto.response.ArticleResponse;
 import com.codeqna.dto.security.BoardPrincipal;
 import com.codeqna.entity.Board;
 import com.codeqna.entity.Reply;
@@ -52,6 +54,10 @@ public class ViewController {
 
     @GetMapping("/main")
     public String boardList(Model model) {
+
+        //방문자수
+        long visitorCnt = userService.getTodayVisitor();
+        model.addAttribute("visitorCnt", visitorCnt);
         // 게시글 목록을 가져와서 모델에 추가
         List<Board> boards = boardService.getAllBoards();
         model.addAttribute("boards", boards);
@@ -60,6 +66,10 @@ public class ViewController {
 
     @GetMapping("/Loginmain")
     public String Loginmainpage(Model model, @AuthenticationPrincipal BoardPrincipal boardPrincipal ){
+        //방문자수
+        long visitorCnt = userService.getTodayVisitor();
+        model.addAttribute("visitorCnt", visitorCnt);
+
         List<Board> boards = boardService.getAllBoards();
         model.addAttribute("boards", boards);
 
@@ -67,16 +77,16 @@ public class ViewController {
         String email = boardPrincipal.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();
 
-
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String email = authentication.getName();
-//        Users users = userRepository.findByEmail(email);
         model.addAttribute("nickname", users.getNickname());
         return "boardlist";
     }
 
     @GetMapping("/admin/deleted")
     public String deletedBoard(Model model){
+        //방문자수
+        long visitorCnt = userService.getTodayVisitor();
+        model.addAttribute("visitorCnt", visitorCnt);
+
         List<LogsViewDto> boards = boardService.getLogWithBoard();
         model.addAttribute("boards", boards);
         return "admin/deletedBoards";
@@ -86,30 +96,45 @@ public class ViewController {
     public String manageBoards(Model model){
         List<Board> boards = boardService.getAllBoards();
         model.addAttribute("boards", boards);
+        //방문자수
+        long visitorCnt = userService.getTodayVisitor();
+        model.addAttribute("visitorCnt", visitorCnt);
         return "admin/manageBoards";
     }
 
     @GetMapping("/admin/comments")
-    public String manageComments(){return "admin/manageComments";}
+    public String manageComments(Model model){
+
+        //방문자수
+        long visitorCnt = userService.getTodayVisitor();
+        model.addAttribute("visitorCnt", visitorCnt);
+        List<RepliesViewDto> replies = articleCommentService.getReplies();
+        model.addAttribute("replies", replies);
+        return "admin/manageComments";}
 
     @GetMapping("/admin/users")
     public String manageUsers(Model model){
+        //방문자수
+        long visitorCnt = userService.getTodayVisitor();
+        model.addAttribute("visitorCnt", visitorCnt);
         List<Users> users = userService.getAllUsers();
         model.addAttribute("users", users);
         return "admin/manageUsers";
     }
     @GetMapping("/admin/files")
-    public String manageFiles(){
+    public String manageFiles(Model model){
+
+        //방문자수
+        long visitorCnt = userService.getTodayVisitor();
+        model.addAttribute("visitorCnt", visitorCnt);
         return "admin/manageFiles";
     }
 
     @GetMapping("/newboard")
     public String newboard(Model model, @AuthenticationPrincipal BoardPrincipal boardPrincipal ){
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String email = authentication.getName();
-//        Users users = userRepository.findByEmail(email);
-
-
+        //방문자수
+        long visitorCnt = userService.getTodayVisitor();
+        model.addAttribute("visitorCnt", visitorCnt);
 
         String email = boardPrincipal.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();
@@ -124,9 +149,10 @@ public class ViewController {
     @GetMapping("/modifyboard")
     public String modifyboard(@RequestParam(required = false) Long bno, Model model
     ,  @AuthenticationPrincipal BoardPrincipal boardPrincipal){
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String email = authentication.getName();
-//        Users users = userRepository.findByEmail(email);
+
+        //방문자수
+        long visitorCnt = userService.getTodayVisitor();
+        model.addAttribute("visitorCnt", visitorCnt);
 
         String email = boardPrincipal.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();
@@ -143,19 +169,24 @@ public class ViewController {
     public String viewBoard(@PathVariable Long bno, Model model
             , @AuthenticationPrincipal BoardPrincipal boardPrincipal) {
 
-        Board board = boardService.findByBno(bno);
-        Set<ArticleCommentResponse> reply = articleCommentService.searchArticleComments(bno);
+        //방문자수
+        long visitorCnt = userService.getTodayVisitor();
+        model.addAttribute("visitorCnt", visitorCnt);
 
+        Board board = boardService.findByBno(bno);
         //없는 게시물에 들어갔을 때
         if(board == null){
             return "error2";
         }
 
+        ArticleResponse articleResponse = ArticleResponse.from(board);
+        Set<ArticleCommentResponse> reply = articleCommentService.searchArticleComments(bno);
+
+
         //삭제된 게시물에 접근할 때
         if(board.getBoard_condition().equals("Y")) {
             return "error2";
         }
-
 
         //정상적인 페이지로 들어갔을 경우 조회수 + 1
         repository.incrementHitCount(bno);
@@ -167,15 +198,14 @@ public class ViewController {
         model.addAttribute("hashtags", hashtagList);
 
         //로그인된 사용자의 nickname을 넘김, 없으면 오류, 빈 값을 넘김
+
         if(boardPrincipal!=null) {
             String email = boardPrincipal.getUsername();
             Users users = userRepository.findByEmail(email).orElseThrow();
             model.addAttribute("nickname", users.getNickname());
-            model.addAttribute("role", users.getUser_role());
         } else{
             model.addAttribute("nickname", "");
         }
-
         // 파일정보 가져오는 부분
         List<Uploadfile> uploadfiles = uploadfileRepository.findByBoard_Bno(bno);
 
@@ -183,7 +213,7 @@ public class ViewController {
 
         model.addAttribute("files", uploadfiles);
 
-        model.addAttribute("board", board);
+        model.addAttribute("board", articleResponse);
 
         model.addAttribute("reply", reply);
         return "viewBoard";

@@ -144,21 +144,21 @@
 <script>
     $(document).ready(function(){
 
-            // 해시태그 추가 버튼 클릭 시
-            $('#newhashtag').click(function(){
+        // 해시태그 추가 버튼 클릭 시
+        $('#newhashtag').click(function(){
+            addHashtag();
+        });
+
+        // 해시태그 입력 필드에서 엔터 키 눌렀을 때
+        $('#hashtag').keypress(function(event){
+            // 엔터 키의 keyCode는 13입니다.
+            if(event.which === 13) {
                 addHashtag();
-            });
+            }
+        });
 
-            // 해시태그 입력 필드에서 엔터 키 눌렀을 때
-            $('#hashtag').keypress(function(event){
-                // 엔터 키의 keyCode는 13입니다.
-                if(event.which === 13) {
-                    addHashtag();
-                }
-            });
-
-            // 해시태그 추가 함수
-            function addHashtag(){
+        // 해시태그 추가 함수
+        function addHashtag(){
             // 입력한 해시태그 텍스트 가져오기
             var hashtagText = $('#hashtag').val().trim();
             // 정규표현식을 사용하여 유효성 검사
@@ -202,12 +202,12 @@
 
 <!-- 드롭존 스크립트 -->
 <script>
-    Dropzone.autoDiscover = false; // deprecated 된 옵션. false로 해놓는걸 공식문서에서 명시
+    //Dropzone.autoDiscover = false; // deprecated 된 옵션. false로 해놓는걸 공식문서에서 명시
+    document.addEventListener("DOMContentLoaded", async function() {
+        let uploadedFiles = []; // 업로드된 파일 정보를 저장할 배열
+        //let deletedFiles = []; // 삭제된 파일 정보를 저장할 배열
+        let alertShown = false; // 알림창 표시 여부 플래그
 
-    let uploadedFiles = []; // 업로드된 파일 정보를 저장할 배열
-    let deletedFiles = []; // 삭제된 파일 정보를 저장할 배열
-
-    async function setDropzone() {
         try {
             const response = await fetch('/fileAPI/fileconfig');
             const config = await response.json();
@@ -226,10 +226,18 @@
                 maxFiles: maxFiles, // 업로드 파일수
                 maxFilesize: maxFilesize, // 최대업로드용량
                 acceptedFiles: acceptedFiles, // 이미지 파일 포맷만 허용
+                parallelUploads: maxFiles, //동시에 업로드할 수 있는 파일 업로드 수
+                autoProcessQueue: false,
                 success: function(file, response) {
+                    //dropzone의 동작 : 파일이 여러 개일 시 url로 1개씩 보냄
                     console.log(response);
                     uploadedFiles.push(response);
                     console.log(uploadedFiles);
+
+                    // Check if all files have been uploaded
+                    if (myDropzone.getQueuedFiles().length === 0 && myDropzone.getUploadingFiles().length === 0) {
+                        createboard(); // All files uploaded, submit the form
+                    }
                 },
                 error: function(file, errorMessage) {
                     console.error(errorMessage);
@@ -249,12 +257,15 @@
             // 최대 파일 수 초과 메서드
             myDropzone.on("maxfilesexceeded", function(file) {
                 this.removeFile(file); // 초과한 파일 제거
-                alert("업로드 가능한 최대 파일 수: " + maxFiles + "개"); // 사용자에게 알림
+                if (!alertShown) {
+                    alert("업로드 가능한 최대 파일 수: " + maxFiles + "개"); // 사용자에게 알림
+                    alertShown = true; // 알림창 표시 여부 플래그를 true로 설정
+                }
             });
 
             // 최대용량 초과, 허용되지 않는 허용자 메서드
             myDropzone.on("addedfile", function(file) {
-                if (!acceptedFiles.includes(file.name.substring(file.name.lastIndexOf('.')))) {
+                if (!acceptedFiles.includes(file.name.substring(file.name.lastIndexOf('.')).toLowerCase())) {
                     this.removeFile(file); // 허용되지 않은 확장자를 가진 파일 제거
                     alert("허용되지 않은 파일 형식입니다."); // 사용자에게 알림
                 } else if (file.size > maxFilesize * 1024 * 1024) {
@@ -263,106 +274,86 @@
                 }
             });
 
+            const createButton = document.getElementById("create-btn");
+
+            if (createButton) {
+                // 클릭 이벤트가 감지되면 생성 API 요청
+                createButton.addEventListener("click", async (event) => {
+                    event.preventDefault();
+
+                    if (myDropzone.getQueuedFiles().length > 0) {
+                        myDropzone.processQueue(); // Process the queue and upload files
+                    } else {
+                        createboard(); // No files to upload, submit the form directly
+                    }
+                });
+            }
+
         } catch (error) {
             console.error('Failed to fetch file config:', error);
         }
-    }
 
-    document.addEventListener("DOMContentLoaded", function() {
-        setDropzone();
-    });
-</script>
-
-<script>
-    const createButton = document.getElementById("create-btn");
-
-    if (createButton) {
-        // 클릭 이벤트가 감지되면 생성 API 요청
-        createButton.addEventListener("click", async (event) => {
-            event.preventDefault();
-
-            let content = editor.getHTML();
-            // 정규표현식을 사용하여 주민등록번호를 찾아 마스킹 처리
-            content = content.replace(/\b(\d{6})(\d{7})\b/g, function(_, p1, p2) {
-                return p1 + '*******';
-            });
-            content = content.replace(/\b(\d{6})[- ]?(\d{7})\b/g, function(_, p1, p2) {
-                return p1 + (p2 ? '-*******' : '*******');
-            });
-
-            // 해시태그들을 담을 문자열 변수
-            let hashtags = "";
-            // 해시태그 목록 요소들을 선택
-            const hashtagElements = document.querySelectorAll('.hashtag-list .btn-primary');
-            // 각 해시태그 목록 요소들을 순회하며 해시태그들을 문자열에 추가
-            hashtagElements.forEach((element, index) => {
-                const hashtagText = element.querySelector('.text').innerText; // 해시태그 텍스트 가져오기
-
-                hashtags += hashtagText; // 해시태그 추가
-            });
-
-            // 제목, 내용 입력 여부 확인
-            if (document.getElementById("title").value.trim() === '') {
-                alert('제목을 입력하세요.');
-                return;
-            }else if(content === '<p><br></p>'){
-                alert('내용을 입력하세요.');
-                return;
-            }
-
-            const response = await fetch("/boardAPI/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    title: document.getElementById("title").value, // 제목 데이터 model에 추가
-                    nickname: document.getElementById("nickname").value,
-                    content: content, // 본문 내용 추가
-                    hashtag: hashtags,
-                    heart: 0,
-                    hitcount: 0,
-                    board_condition: "N",
-                    files: uploadedFiles,
-                })
-            });
-
-            if (response.ok) {
-                success();
-            } else {
-                fail();
-            }
-        });
-
-        function success() {
-            alert("등록 완료되었습니다.");
-            location.replace("/Loginmain");
-        }
-
-        function fail() {
-            alert("등록 실패했습니다.");
-        }
-    }
-
-    const cancelButton = document.getElementById("cancel-button");
-
-    if (cancelButton) {
-        // 클릭 이벤트가 감지되면 임시 파일 삭제 요청
-        cancelButton.addEventListener("click", async (event) => {
+        async function createboard() {
             try {
-                for (let file of uploadedFiles) {
-                    await fetch(`/fileAPI/delete?fileName=${file.savedFileName}&bno=0`, {
-                        method: "DELETE"
-                    });
+                let content = editor.getHTML();
+                // 정규표현식을 사용하여 주민등록번호를 찾아 마스킹 처리
+                content = content.replace(/\b(\d{6})(\d{7})\b/g, function(_, p1, p2) {
+                    return p1 + '*******';
+                });
+                content = content.replace(/\b(\d{6})[- ]?(\d{7})\b/g, function(_, p1, p2) {
+                    return p1 + (p2 ? '-*******' : '*******');
+                });
+
+                console.log(document.getElementById("nickname").value);
+                // 해시태그들을 담을 문자열 변수
+                let hashtags = "";
+                // 해시태그 목록 요소들을 선택
+                const hashtagElements = document.querySelectorAll('.hashtag-list .btn-primary');
+                // 각 해시태그 목록 요소들을 순회하며 해시태그들을 문자열에 추가
+                hashtagElements.forEach((element, index) => {
+                    const hashtagText = element.querySelector('.text').innerText; // 해시태그 텍스트 가져오기
+
+                    hashtags += hashtagText; // 해시태그 추가
+                });
+
+                // 제목, 내용 입력 여부 확인
+                if (document.getElementById("title").value.trim() === '') {
+                    alert('제목을 입력하세요.');
+                    return;
+                }else if(content === '<p><br></p>'){
+                    alert('내용을 입력하세요.');
+                    return;
                 }
-                alert("취소되었습니다.");
-                location.replace("/Loginmain");
+
+                fetch("/boardAPI/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        title: document.getElementById("title").value, // 제목 데이터 model에 추가
+                        nickname: document.getElementById("nickname").value,
+                        content: content, // 본문 내용 추가
+                        hashtag: hashtags,
+                        heart: 0,
+                        hitcount: 0,
+                        board_condition: "N",
+                        files: uploadedFiles,
+                    }),
+                })
+                    .then(() => {
+                        alert("등록 완료되었습니다.");
+                        location.replace("/Loginmain");
+                    })
+                    .catch(() => {
+                        alert("등록 실패했습니다.");
+                    });
             } catch (error) {
-                console.error('Failed to delete files:', error);
-                alert("파일 삭제에 실패했습니다.");
+                console.error('Failed to create post:', error);
+                alert("게시물 등록에 실패했습니다.");
             }
-        });
-    }
+        }
+    });
 </script>
 
 

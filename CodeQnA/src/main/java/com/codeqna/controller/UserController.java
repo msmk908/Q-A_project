@@ -74,9 +74,7 @@ public class UserController {
 
     @GetMapping("/mypage")
     public String mypage(Model model, @AuthenticationPrincipal BoardPrincipal boardPrincipal){
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String email = authentication.getName();
-//        Users users = userRepository.findByEmail(email);
+
 
         String email = boardPrincipal.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();

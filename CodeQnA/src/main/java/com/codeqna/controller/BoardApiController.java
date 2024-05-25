@@ -1,16 +1,16 @@
 package com.codeqna.controller;
 
 import com.codeqna.dto.*;
+import com.codeqna.dto.security.BoardPrincipal;
 import com.codeqna.entity.Board;
 import com.codeqna.entity.Heart;
 import com.codeqna.entity.Users;
-import com.codeqna.service.BoardService;
-import com.codeqna.service.HeartService;
-import com.codeqna.service.ReplyService;
-import com.codeqna.service.UserService;
+import com.codeqna.repository.LogsRepository;
+import com.codeqna.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,11 +24,14 @@ public class BoardApiController {
     private final ReplyService replyService;
     private final HeartService heartService;
     private final UserService userService;
-
+    private final ArticleCommentService articleCommentService;
     // 게시물 등록
     @PostMapping("/register")
-    public ResponseEntity<Board> addBoard(@RequestBody AddBoardRequest request){
-        Board savedBoard = boardService.save(request);
+    public ResponseEntity<Board> addBoard(@RequestBody AddBoardRequest request,
+                                          @AuthenticationPrincipal BoardPrincipal boardPrincipal    ){
+
+        String email = boardPrincipal.getUsername();
+        Board savedBoard = boardService.save(request,email);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedBoard);
     }
@@ -49,10 +52,11 @@ public class BoardApiController {
     }
 
 
-    // 유저가 게시물 삭제
+    //게시물 삭제
     @PutMapping("/delete/{bno}")
     public ResponseEntity<Void> delete(@PathVariable Long bno) {
         boardService.deleteBoard(bno);
+        System.out.println("요까지1");
 
         return ResponseEntity.ok().build();
     }
@@ -60,7 +64,8 @@ public class BoardApiController {
     // 관리자가 게시물 삭제
     @PutMapping("/deleteAdmin/{bno}")
     public ResponseEntity<Void> deleteAdmin(@PathVariable Long bno) {
-        boardService.deleteBoardAdmin(bno);
+        boardService.deleteAdminBoard(bno);
+        System.out.println("요까지1");
 
         return ResponseEntity.ok().build();
     }
@@ -100,9 +105,36 @@ public class BoardApiController {
     //검색
     @GetMapping("/searchUsers")
     public List<Users> searchUsers(@RequestParam("condition") String condition,
-                                   @RequestParam("keyword") String keyword) {
-        return userService.searchUsers(condition, keyword);
+                                   @RequestParam("keyword") String keyword,
+                                   @RequestParam("start") String start,
+                                   @RequestParam("end") String end,
+                                   @RequestParam(value = "kakaoCondition", required = false, defaultValue = "defaultCondition") String kakaoCondition) {
+
+        if(condition.equals("regdate")||condition.equals("expiredDate")){
+            return userService.searchDateDeleteUsers(condition, start, end);
+        }else if (condition.equals("kakao")) {
+            return userService.searchRadioKakao(kakaoCondition);
+        }else {
+            return userService.searchStringDeleteUsers(condition, keyword);
+        }
+
     }
+    //댓글관리페이지
+    //검색
+    @GetMapping("/searchReplies")
+    public List<RepliesViewDto> searchReplies(@RequestParam("condition") String condition,
+                                   @RequestParam("keyword") String keyword,
+                                   @RequestParam("start") String start,
+                                   @RequestParam("end") String end) {
+
+        if(condition.equals("regdate")||condition.equals("deletetime")||condition.equals("recovertime")){
+            return articleCommentService.searchDateReplies(condition, start, end);
+        }else {
+            return articleCommentService.searchStringReplies(condition, keyword);
+        }
+
+    }
+
 
     // 삭제게시물 전체 불러오는 메서드
     @GetMapping("/deleted")
@@ -119,11 +151,35 @@ public class BoardApiController {
 
         if(condition.equals("regdate")||condition.equals("deletetime")||condition.equals("recovertime")){
             return boardService.searchDateDeleteBoards(condition, start, end);
-        } else {
+        }else {
             return boardService.searchStringDeleteBoards(condition, keyword);
         }
 
     }
+
+    // 삭제게시물 복원 요청
+    @PostMapping("/recoverBoard")
+    public ResponseEntity<String> recoverBoard(@RequestBody List<Long> bnos) {
+        if (bnos == null || bnos.isEmpty()) {
+            return ResponseEntity.badRequest().body("No boards selected for recovery");
+        }
+        try {
+            boardService.recoverBoards(bnos);
+            return ResponseEntity.ok("Boards recovered successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error recovering boards");
+        }
+    }
+//    //댓글 채택
+//    @GetMapping("/reply/adopt/{bno}")
+//    public ResponseEntity<Void> adoptReply(@PathVariable Long bno,
+//                                           @RequestBody Long rno){
+//        boardService.adoptReply(bno,rno);
+//
+//
+//        return ResponseEntity.ok().build();
+//
+//    }
 
     // 삭제게시물 검색
     @GetMapping("/searchManageBoardTable")
@@ -142,8 +198,6 @@ public class BoardApiController {
         }
 
     }
-
-
 
     // 삭제게시물 복원 요청
     @PostMapping("/recoverDeleteBoard")
@@ -172,5 +226,8 @@ public class BoardApiController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting boards");
         }
     }
+
+
+
 
 }

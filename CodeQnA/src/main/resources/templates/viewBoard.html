@@ -1,59 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<style>
-    .attachment {
-        margin-left: 10px;
-        position: relative; /* 파일 이름을 포함한 div에 상대적인 위치 설정 */
-    }
-
-    li {
-        list-style-type: none;
-    }
-
-    .preview {
-        display: none; /* 미리보기는 처음에 숨깁니다. */
-        position: absolute; /* 파일 이름을 포함한 div에 대한 절대 위치 설정 */
-        top: 100%; /* 파일 이름을 포함한 div 아래에 미리보기 배치 */
-        left: 0;
-        z-index: 1; /* 다른 요소 위에 배치 */
-        background-color: white; /* 배경색 설정 */
-        padding: 5px; /* 여백 설정 */
-        border: 1px solid #ccc; /* 테두리 설정 */
-
-        /* 적절한 크기로 제한 */
-        width: auto; /* 너비 자동 조절 */
-        height: auto; /* 높이 자동 조절 */
-    }
-
-    .attachment:hover .preview {
-        display: block; /* 마우스를 올리면 미리보기 표시 */
-    }
-
-    /* 파일 이름이 포함된 div를 이동하지 않도록 설정 */
-    .attachment a {
-        display: inline-block;
-        vertical-align: top;
-    }
-</style>
-
 <script>
-    // JavaScript 코드 추가
-    document.addEventListener("DOMContentLoaded", function() {
-        // 현재 사용자의 닉네임과 역할 가져오기
-        const nickname = document.getElementById('nickname').value;
-        const userRole = document.getElementById('userRole').value;
-
-        // 확인용 콘솔 출력
-        console.log("현재 사용자 닉네임:", nickname);
-        console.log("현재 사용자 역할:", userRole);
-
-        // 비교
-        console.log("nickname != board.nickname:", nickname !== board.nickname);
-        console.log("role != 'ADMIN':", userRole !== 'ADMIN');
-    });
-
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         // JavaScript로 버튼을 클릭할 때마다 색상을 변경하고 좋아요 카운트를 증가 또는 감소시킵니다.
         var heartButton = document.getElementById("heartButton");
         var heartIcon = document.getElementById("heartIcon");
@@ -66,7 +15,7 @@
 
         //사용자가 게시물에 좋아요를 눌렀는지
         //console.log("닉넴:" + nickname);
-        if(nickname) {
+        if (nickname) {
             fetch("/boardAPI/heart/pressHeart", {
                 method: 'POST',
                 headers: {
@@ -92,12 +41,12 @@
                 });
         }
 
-        heartButton.addEventListener("click", function() {
+        heartButton.addEventListener("click", function () {
             //console.log(nickname);
             //console.log(bno);
-            if(nickname === "") {
+            if (nickname === "") {
                 alert("로그인된 사용자만 가능합니다.");
-                return ;
+                return;
             }
             var requestUrl = isLiked ? "/boardAPI/heart/unlike" : "/boardAPI/heart/like";
             //console.log("Request URL:", requestUrl);
@@ -109,8 +58,8 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    nickname : nickname,
-                    bno : bno,
+                    nickname: nickname,
+                    bno: bno,
                 }),
             })
                 .then(response => {
@@ -138,36 +87,37 @@
                 });
         });
 
-        //게시물 삭제
-        const userRole = document.getElementById('userRole').value;
-        console.log(userRole);
-        const deleteButton = document.getElementById('deleteBoard');
-        if(deleteButton) {
-            deleteButton.addEventListener('click', (event) => {
-                let bno = document.getElementById('boardBno').value;
 
-                if (userRole === 'ADMIN') {
-                    console.log("관리자");
-                    if (confirm('정말 삭제하시겠습니까?')) {
-                        fetch(`/boardAPI/deleteAdmin/${bno}`, {
-                            method: 'PUT'
-                        })
-                            .then(() => {
-                                alert('삭제가 완료되었습니다.');
-                                location.replace('/main');
-                            });
-                    }
-                } else if (userRole === 'USER') {
-                    console.log("유저");
-                    if (confirm('정말 삭제하시겠습니까?')) {
-                        fetch(`/boardAPI/delete/${bno}`, {
-                            method: 'PUT'
-                        })
-                            .then(() => {
-                                alert('삭제가 완료되었습니다.');
-                                location.replace('/main');
-                            });
-                    }
+        //게시물 삭제
+        const deleteButton = document.getElementById('deleteBoard');
+        if (deleteButton) {
+            deleteButton.addEventListener('click', (event) => {
+                if (confirm('정말 삭제하시겠습니까?')) {
+                    let bno = document.getElementById('boardBno').value;
+                    fetch(`/boardAPI/delete/${bno}`, {
+                        method: 'PUT'
+                    })
+                        .then(() => {
+                            alert('삭제가 완료되었습니다.');
+                            location.replace('/main');
+                        });
+                }
+            });
+        }
+
+        // 관리자가 게시물 삭제
+        const deleteAdminButton = document.getElementById('deleteAdminBoard');
+        if (deleteAdminButton) {
+            deleteAdminButton.addEventListener('click', (event) => {
+                if (confirm('정말 삭제하시겠습니까?')) {
+                    let bno = document.getElementById('boardBno').value;
+                    fetch(`/boardAPI/deleteAdmin/${bno}`, {
+                        method: 'PUT'
+                    })
+                        .then(() => {
+                            alert('삭제가 완료되었습니다.');
+                            location.replace('/main');
+                        });
                 }
             });
         }
@@ -206,6 +156,67 @@
     <link href="/css/sb-admin-2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+    <!--&lt;!&ndash; TUI 에디터 JS CDN &ndash;&gt;
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+    &lt;!&ndash; TUI 에디터 CSS CDN &ndash;&gt;
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />-->
+
+    <style>
+        .attachment {
+            margin-left: 10px;
+            position: relative; /* 파일 이름을 포함한 div에 상대적인 위치 설정 */
+        }
+
+        li {
+            list-style-type: none;
+        }
+
+        .preview {
+            display: none; /* 미리보기는 처음에 숨깁니다. */
+            position: absolute; /* 파일 이름을 포함한 div에 대한 절대 위치 설정 */
+            top: 100%; /* 파일 이름을 포함한 div 아래에 미리보기 배치 */
+            left: 0;
+            z-index: 1; /* 다른 요소 위에 배치 */
+            background-color: white; /* 배경색 설정 */
+            padding: 5px; /* 여백 설정 */
+            border: 1px solid #ccc; /* 테두리 설정 */
+
+            /* 적절한 크기로 제한 */
+            width: auto; /* 너비 자동 조절 */
+            height: auto; /* 높이 자동 조절 */
+        }
+
+        .attachment:hover .preview {
+            display: block; /* 마우스를 올리면 미리보기 표시 */
+        }
+
+        /* 파일 이름이 포함된 div를 이동하지 않도록 설정 */
+        .attachment a {
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        /*본문 사이즈*/
+        #wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #content-wrapper {
+            flex: 1;
+        }
+
+        footer {
+            background-color: #8D94C7;
+            color: black;
+            height: 80px; /* 푸터 높이 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -221,7 +232,6 @@
             <div class="container-fluid">
                 <input type="hidden" id="nickname" th:value="${nickname}">
                 <input type="hidden" id="boardBno" th:value="${board.bno}">
-                <input type="hidden" id="userRole" th:value="${role}">
                 <h1 class="h3 mb-1 text-gray-800" th:text="${board.title}"></h1>
                 <div class="row">
                     <div class="col-lg-4">
@@ -241,7 +251,11 @@
                         <p th:utext="${board.content}">
                     </div>
                 </div>
+                <!-- 본문이 들어갈 toast UI Editor-->
+                <!-- 원래는 editor가 들어가지 않지만 본문 표시를 위해 임시로 해 놓음-->
+                <!--<div id="editorcontent">
 
+                </div>-->
                 <br>
 
                 <!-- heart button -->
@@ -262,88 +276,123 @@
                     <div class="col text-right">
                         <button class="btn btn-primary"
                                 th:onclick="|location.href='@{/modifyboard?bno={bno}(bno=${board.bno})}'|"
-                                th:disabled="${nickname != board.nickname}">수정</button>
+                                th:if="${#authorization.expression('isAuthenticated()')} and ${board.email} == ${#authentication.name}"
+                        >수정
+                        </button>
                         <button id="deleteBoard" class="btn btn-danger"
-                                th:disabled="${nickname != board.nickname && role != 'ADMIN'}">삭제</button>
+                                th:if="${board.email == #authentication.name and not #authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                            삭제
+                        </button>
+
+                        <button id="deleteAdminBoard" class="btn btn-danger"
+                                th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"
+
+                        >삭제
+                        </button>
                         <button th:onclick="|location.href='@{/main}'|" class="btn btn-secondary">목록</button>
                     </div>
                 </div>
                 <hr>
 
-
                 <!-- 첨부 파일 목록 -->
                 <div class="row justify-content-center">
                     <!-- pdf, hwp -->
-                    <div th:each="file : ${files}" class="attachment" th:if="${#strings.endsWith(file.getOriginal_file_name(), '.pdf')}">
-                        <i th:if="${#strings.endsWith(file.getOriginal_file_name(), '.pdf')}" class="bi bi-file-earmark"></i>
-                        <a href="#" th:onclick="previewPDF('@{'/files/' + ${file.getSaved_file_name()}}')">
+                    <div th:each="file : ${files}" class="attachment" th:if="${#strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.pdf')}">
+                        <i th:class="${#strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.pdf')} ? 'bi bi-file-earmark'"></i>
+                        <a href="#" th:onclick="|previewPDF('@{'http://localhost:8080/image_qna/' + ${file.getSaved_file_name()}}')|">
                             <span th:text="${file.getOriginal_file_name()}"></span>
                         </a>
                     </div>
                     <!-- jpg, jpeg, gif, png -->
-                    <div th:each="file : ${files}" class="attachment" th:if="${#strings.endsWith(file.getOriginal_file_name(), '.png') or #strings.endsWith(file.getOriginal_file_name(), '.jpeg') or #strings.endsWith(file.getOriginal_file_name(), '.jpg') or #strings.endsWith(file.getOriginal_file_name(), '.gif') or #strings.endsWith(file.getOriginal_file_name(), '.hwp')}">
-                        <i th:if="${#strings.endsWith(file.getOriginal_file_name(), '.png') or #strings.endsWith(file.getOriginal_file_name(), '.jpeg') or #strings.endsWith(file.getOriginal_file_name(), '.jpg') or #strings.endsWith(file.getOriginal_file_name(), '.gif')}" class="bi bi-card-image"></i>
-                        <i th:if="${#strings.endsWith(file.getOriginal_file_name(), '.hwp')}" class="bi bi-file-earmark"></i>
+                    <div th:each="file : ${files}" class="attachment" th:if="${#strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.png') or #strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.jpeg') or #strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.jpg') or #strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.gif') or #strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.hwp')}">
+                        <i th:if="${#strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.png') or #strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.jpeg') or #strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.jpg') or #strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.gif')}" class="bi bi-card-image"></i>
+                        <i th:if="${#strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.hwp')}" class="bi bi-file-earmark"></i>
                         <a th:href="@{'/files/' + ${file.getSaved_file_name()}}" download th:text="${file.getOriginal_file_name()}"></a>
-                        <div th:if="${#strings.endsWith(file.getOriginal_file_name(), '.png') or #strings.endsWith(file.getOriginal_file_name(), '.jpeg') or #strings.endsWith(file.getOriginal_file_name(), '.jpg') or #strings.endsWith(file.getOriginal_file_name(), '.gif')}" class="preview">
+                        <div th:if="${#strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.png') or #strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.jpeg') or #strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.jpg') or #strings.endsWith(#strings.toLowerCase(file.getOriginal_file_name()), '.gif')}" class="preview">
                             <img th:src="@{'/files/' + ${file.getSaved_file_name()}}" alt="Image preview" style="width: auto; height: auto; max-width: 500px; max-height: 500px;">
                         </div>
                     </div>
                 </div>
 
+
                 <!-- 댓글 작성 -->
-                <div class="row g-5">
-                <section>
-                <form class="row g-3 comment-form" th:action="@{/comments/new}" th:method="post">
-                    <input type="hidden" class="article-id" th:name="articleId" th:value="*{board.bno}">
-                    <div class="col-md-9 col-lg-8">
-                        <label for="comment-textbox" hidden>댓글</label>
-                        <textarea class="form-control comment-textbox" id="comment-textbox" th:name="content" placeholder="댓글 쓰기.." rows="3" required></textarea>
-                    </div>
-                    <div class="col-md-3 col-lg-4">
-                        <label for="comment-submit" hidden>댓글 쓰기</label>
-                        <button class="btn btn-secondary" id="comment-submit" type="submit">쓰기</button>
+                <hr style="height: 3px; background-color: #007bff;">
+                <form class="row comment-form" >
+                    <div class="input-group" style="margin-left: 16px">
+                        <input type="hidden" id="new-comment-article-id" th:value="${board.bno}">
+                        <div class="col-md-9 col-lg-8" style="margin-left: 30px">
+
+                            <textarea class="form-control comment-textbox" id="new-comment-body" style="resize: none" th:name="content"
+                                      placeholder="댓글 쓰기.." rows="3" required></textarea>
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <button class="btn btn-secondary" id="comment-create-btn"  type="button" style="margin-top: 24px">쓰기</button>
+                        </div>
                     </div>
                 </form>
-
                 <!-- 댓글 목록 -->
-                <ul id="article-comments" class="row col-md-10 col-lg-8 pt-3">
-                    <li class="parent-comment" th:each="rep : ${reply}">
-                        <form class="comment-delete-form" th:action="'/comments/' + ${rep.id} + '/delete'" th:method="post">
+                <hr style="height: 3px; background-color: #007bff;">
+                <h3 class="mb-4">
+                    댓글 목록
+                </h3>
+                <ul id="article-comments">
+                    <li class="parent-comment" th:each="rep : ${reply}" th:data-comment-id="${rep.id}">
+                        <form class="comment-delete-form" th:action="'/comments/' + ${rep.id} + '/delete'"
+                              th:method="post">
                             <input type="hidden" class="article-id" th:name="articleId" th:value="*{board.bno}">
                             <div class="row">
-                                <div class="col-md-10 col-lg-9">
+                                <div class="col-md-10 col-lg-9" style="border-bottom:1px solid;">
                                     <strong th:text="${rep.nickname}">Uno</strong>
-                                    <small><time th:datetime="${rep.createdAt}" th:text="${#temporals.format(rep.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2022-01-01</time></small>
-                                    <p class="mb-1" th:text="${rep.content}">
+                                    <small>
+                                        <time th:datetime="${rep.createdAt}"
+                                              th:text="${#temporals.format(rep.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
+                                            2022-01-01
+                                        </time>
+                                    </small>
+                                    <p class="mb-1"
+                                       th:text="${rep.reply_condition=='Y'} ?'삭제된 댓글입니다' : ${rep.content}">
                                         Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>
                                         Lorem ipsum dolor sit amet
                                     </p>
                                 </div>
-                                <div class="col-2 mb-3 align-self-center">
+                                <div class="col-md-2 align-self-center">
                                     <button type="button"
                                             class="btn btn-sm btn-primary"
                                             data-bs-toggle="modal"
                                             data-bs-target="#comment-edit-modal"
-                                            th:attr="data-bs-id=${rep.id},
-                             data-bs-body=${rep.content}">수정</button>
+                                            th:attr="data-bs-id=${rep.id},data-bs-body=${rep.content}"
+                                            th:if="${#authorization.expression('isAuthenticated()')} and ${rep.email} == ${#authentication.name} and ${rep.reply_condition=='N'}">
+                                        수정</button>
 
+                                    <button type="button" class="btn btn-danger btn-sm comment-delete-btn"   th:attr="data-comment-id=${rep.id}"
+                                            th:if="${rep.reply_condition=='N'} and ${#authorization.expression('hasRole(''ROLE_ADMIN'')')} or ${rep.reply_condition=='N'} and ${rep.email} == ${#authentication.name}">삭제</button>
+<!--                                    <button type="button" class="btn btn-info btn-sm comment-adopt-btn"   th:attr="data-comment-id=${rep.id}"-->
+<!--                                            th:if="${rep.reply_condition=='N'} and ${#authorization.expression('isAuthenticated()')} and ${board.email} == ${#authentication.name}">채택</button>-->
 
-                                    <button type="button" class="btn btn-danger comment-delete-btn"   th:attr="data-comment-id=${rep.id}"
-                                            th:if="${#authorization.expression('isAuthenticated()')} and ${rep.email} == ${#authentication.name}">삭제</button>
                                 </div>
                             </div>
                         </form>
 
-                        <ul class="row me-0" th:if="${not #sets.isEmpty(rep.getChildComments())}">
+                        <ul class="me-0" th:if="${not #sets.isEmpty(rep.getChildComments())}">
                             <li class="child-comment" th:each="childComment : ${rep.getChildComments()}">
-                                <form class="comment-delete-form" th:action="'/comments/' + ${childComment.id} + '/delete'" th:method="post">
-                                    <input type="hidden" class="article-id" th:name="articleId" th:value="*{board.bno}">
+                                <form class="comment-delete-form"
+                                      th:action="'/comments/' + ${childComment.id} + '/delete'" th:method="post">
+                                    <input type="hidden" class="article-id" th:name="articleId"
+                                           th:value="*{board.bno}">
                                     <div class="row">
-                                        <div class="col-md-10 col-lg-9">
+                                        <div class="col-md-10 col-lg-9" style="border-bottom:1px solid;">
                                             <strong th:text="${childComment.nickname}">Uno</strong>
-                                            <small><time th:datetime="${childComment.createdAt}" th:text="${#temporals.format(childComment.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2022-01-01</time></small>
-                                            <p class="mb-1" th:text="${childComment.content}">
+                                            <small>
+                                                <time th:datetime="${childComment.createdAt}"
+                                                      th:text="${#temporals.format(childComment.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
+                                                    2022-01-01
+                                                </time>
+                                            </small>
+
+                                            <p class="mb-1"
+                                               th:text="${childComment.reply_condition=='Y'} ?'삭제된 댓글입니다' : ${childComment.content}">
                                                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>
                                                 Lorem ipsum dolor sit amet
                                             </p>
@@ -353,11 +402,13 @@
                                                     class="btn btn-sm btn-primary"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#comment-edit-modal"
-                                                    th:attr="data-bs-id=${childComment.id},
-                                               data-bs-body=${childComment.content}">수정</button>
+                                                    th:attr="data-bs-id=${childComment.id},data-bs-body=${childComment.content}"
+                                                    th:if="${#authorization.expression('isAuthenticated()')} and ${childComment.email} == ${#authentication.name} and ${childComment.reply_condition=='N'}">수정</button>
 
-                                            <button type="button" class="btn btn-danger comment-delete-btn" th:if="${#authorization.expression('isAuthenticated()')} and ${childComment.email} == ${#authentication.name}"
+                                            <button type="button" class="btn btn-sm btn-danger comment-delete-btn" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')} and ${childComment.reply_condition=='N'}
+                                             or ${childComment.email} == ${#authentication.name} and ${childComment.reply_condition=='N'}"
                                                     th:attr="data-comment-id=${childComment.id}">삭제</button>
+
                                         </div>
                                     </div>
                                 </form>
@@ -366,26 +417,28 @@
 
                         <div class="row">
                             <details class="col-md-10 col-lg-9 mb-4">
-                                <summary>댓글 달기</summary>
-                                <form class="comment-form" th:action="@{/comments/new}" th:method="post">
-                                    <input type="hidden" class="article-id" th:name="articleId" th:value="*{board.bno}">
-                                    <input type="hidden" class="parent-comment-id" th:name="parentCommentId" th:value="${rep.id}">
-                                    <textarea th:name="content" class="form-control comment-textbox" placeholder="댓글 쓰기.." rows="2" required></textarea>
-                                    <button class="form-control btn btn-secondary mt-2" type="submit">쓰기</button>
+                                <summary style="color: #6610f2">댓글 달기</summary>
+                                <form class="child-comment-form">
+                                    <input type="hidden" class="new-child-comment-article-id" th:value="${board.bno}">
+                                    <input type="hidden" class="parent-comment-id" th:name="parentCommentId"
+                                           th:value="${rep.id}">
+                                    <textarea th:name="content" class="form-control comment-textbox new-child-comment-body" style="resize: none"
+                                              placeholder="댓글 쓰기.." rows="2" required></textarea>
+                                    <button class="form-control btn btn-secondary mt-2 child-comment-create-btn" type="button">쓰기</button>
                                 </form>
                             </details>
                         </div>
+                        <hr style="height: 1px; background-color: #000000;">
                     </li>
                 </ul>
                 <!-- end reply-->
-                </section>
-                </div>
             </div>
-            <div th:include="~{fragments/footer :: #footer}"></div>
         </div>
-        <!-- end main content -->
     </div>
-    <!-- end content wrapper -->
+    <!-- end main content -->
+</div>
+<!-- end content wrapper -->
+<div th:insert="~{fragments/footer :: #footer}"></div>
 </div>
 
 <!-- Modal -->
@@ -403,7 +456,7 @@
                     <!-- 댓글 본문 입력 -->
                     <div class="mb-3">
                         <label class="form-label">댓글 내용</label>
-                        <textarea type="text" class="form-control" rows="3" id="edit-comment-body"></textarea>
+                        <textarea type="text" class="form-control" rows="3" id="edit-comment-body" style="resize: none"></textarea>
                     </div>
                     <!-- 히든 인풋 -->
                     <input type="hidden" id="edit-comment-id">
@@ -416,17 +469,113 @@
 </div>
 </body>
 
-<!-- PDF.js 라이브러리 추가 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const commentCreateBtn = document.querySelector("#comment-create-btn");
+        const commentInput = document.querySelector("#new-comment-body");
+
+        // 댓글 클릭 이벤트 감지
+        commentCreateBtn.addEventListener("click", function() {
+            // 새 댓글 객체 생성
+            const comment = {
+                // 새 댓글의 본문
+                content: commentInput.value,
+                // 부모 게시글의 id
+                articleId: document.querySelector("#new-comment-article-id").value
+            };
+
+            if(comment.content === ""){
+                alert("댓글을 입력해주세요.");
+                return;
+            }
+
+            // 댓글 객체 출력
+            console.log(comment);
+
+            // 비동기 통신을 위한 fetch API 호출
+            const url = "/api/comments";
+            fetch(url, {
+                method: "POST", // POST 요청
+                headers: { // 전송 본문의 데이터 타입(JSON) 정보
+                    // 'X-CSRF-Token': token,
+                    // 'header': header,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(comment) // comment 객체를 JSON 문자열로 변환해 전송
+            }).then(response => {
+                // HTTP 응답 코드에 따른 메시지 출력
+                const msg = (response.ok) ? "댓글이 등록됐습니다." : "댓글 등록 실패..!";
+                alert(msg);
+                // 현재 페이지 새로 고침
+                window.location.reload();
+            });
+        });
+
+        // 엔터 키 눌렀을 때 댓글 생성 버튼 클릭 이벤트 트리거
+        commentInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault(); // 기본 엔터 키 동작 방지 (줄바꿈 방지)
+                commentCreateBtn.click();
+            }
+        });
+
+        const childCommentCreateBtns = document.querySelectorAll(".child-comment-create-btn");
+
+        childCommentCreateBtns.forEach(btn => {
+            const commentInput = btn.closest(".parent-comment").querySelector(".new-child-comment-body");
+
+            btn.addEventListener("click", function () {
+                const comment = {
+                    // 새 댓글의 본문
+                    content: commentInput.value,
+                    // 부모 게시글의 id
+                    articleId: btn.closest(".parent-comment").querySelector(".new-child-comment-article-id").value,
+                    parentCommentId: btn.closest(".parent-comment").querySelector(".parent-comment-id").value,
+                };
+
+                if(comment.content === ""){
+                    alert("댓글을 입력해주세요.");
+                    return;
+                }
+
+                console.log(comment);
+
+                // 비동기 통신을 위한 fetch API 호출
+                const url = "/api/comments";
+                fetch(url, {
+                    method: "POST", // POST 요청
+                    headers: { // 전송 본문의 데이터 타입(JSON) 정보
+                        // 'X-CSRF-Token': token,
+                        // 'header': header,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(comment) // comment 객체를 JSON 문자열로 변환해 전송
+                }).then(response => {
+                    // HTTP 응답 코드에 따른 메시지 출력
+                    const msg = (response.ok) ? "댓글이 등록됐습니다." : "댓글 등록 실패..!";
+                    alert(msg);
+                    // 현재 페이지 새로 고침
+                    window.location.reload();
+                });
+            });
+
+            // 엔터 키 눌렀을 때 자식 댓글 생성 버튼 클릭 이벤트 트리거
+            commentInput.addEventListener("keydown", function(event) {
+                if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault(); // 기본 엔터 키 동작 방지 (줄바꿈 방지)
+                    btn.click();
+                }
+            });
+        });
 
         // 모달 요소 선택
         const commentEditModal = document.querySelector("#comment-edit-modal");
         // 모달 이벤트 감지
-        commentEditModal.addEventListener("show.bs.modal", function(event) {
+        commentEditModal.addEventListener("show.bs.modal", function (event) {
             // 1. 트리거 버튼 선택
             const triggerBtn = event.relatedTarget;
             // 2. 데이터 가져오기
@@ -442,11 +591,16 @@
         // 수정 완료 버튼 선택
         const commentUpdateBtn = document.querySelector("#comment-update-btn");
         // 클릭 이벤트 처리
-        commentUpdateBtn.addEventListener("click", function() {
+        commentUpdateBtn.addEventListener("click", function () {
+            //
+            // var token = document.querySelector('meta[name="_csrf"]').content;
+            // var header = document.querySelector('meta[name="_csrf_header"]').content;
+            // 수정 댓글 객체 생성
             const comment = {
                 id: document.querySelector("#edit-comment-id").value,
                 content: document.querySelector("#edit-comment-body").value,
             };
+
             console.log(comment);
             // 수정 REST API 호출
             const url = "/api/comments/" + comment.id;
@@ -472,6 +626,9 @@
         // 삭제 버튼 이벤트 처리
         commentDeleteBtns.forEach(btn => {
             btn.addEventListener("click", (event) => {
+                //
+                // var token = document.querySelector('meta[name="_csrf"]').content;
+                // var header = document.querySelector('meta[name="_csrf_header"]').content;
 
                 // 이벤트 발생 요소 선택
                 const commentDeleteBtn = event.target;
@@ -482,6 +639,11 @@
                 const url = `/api/comments/${commentId}`;
                 fetch(url, {
                     method: "DELETE"
+                    // ,headers: {
+                    //
+                    //     'X-CSRF-Token': token,
+                    //     'header': header
+                    // }
 
                 }).then(response => {
                     // 댓글 삭제 실패 처리
@@ -510,52 +672,39 @@
             const link = attachment.querySelector('a');
             const preview = attachment.querySelector('.preview');
 
-            link.addEventListener('mouseover', () => {
+            // 미리보기를 표시합니다.
+            const showPreview = () => {
                 if (preview) {
                     preview.style.display = 'block';
                 }
-            });
+            };
 
-            link.addEventListener('mouseout', () => {
+            // 미리보기를 숨깁니다.
+            const hidePreview = () => {
                 if (preview) {
                     preview.style.display = 'none';
                 }
-            });
+            };
+
+            link.addEventListener('mouseover', showPreview);
+
+            link.addEventListener('mouseout', hidePreview);
+
+            // 미리보기 이미지에 마우스를 올렸을 때 호버 효과를 유지합니다.
+            if (preview) {
+                preview.addEventListener('mouseover', showPreview);
+
+                preview.addEventListener('mouseout', hidePreview);
+            }
         });
     });
 </script>
 
-<!-- pdf 스크립트 -->
+<!-- pdf 미리보기창 띄우기 스크립트 -->
 <script>
-    // 클릭 이벤트에 바인딩할 함수
     function previewPDF(url) {
-        // 새 창 열기
-        var newWindow = window.open("", "_blank");
-
-        // PDF.js를 사용하여 PDF 로드
-        pdfjsLib.getDocument(url).promise.then(function(pdf) {
-            // 첫 번째 페이지를 가져와서 렌더링
-            pdf.getPage(1).then(function(page) {
-                var scale = 1.5; // 확대 배율 조정 가능
-                var viewport = page.getViewport({ scale: scale });
-
-                // 캔버스 요소 생성
-                var canvas = document.createElement("canvas");
-                var context = canvas.getContext("2d");
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                // 캔버스에 PDF 페이지 렌더링
-                var renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-                page.render(renderContext).promise.then(function() {
-                    // 캔버스를 새 창에 추가
-                    newWindow.document.body.appendChild(canvas);
-                });
-            });
-        });
+        console.log("pdf 미리보기 스크립트 발동");
+        window.open(url, '_blank');
     }
 </script>
 

@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.Map;
@@ -33,6 +34,9 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 public class SecurityConfig {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserService userService;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -83,14 +87,16 @@ public class SecurityConfig {
                 .requestMatchers(antMatcher("/boardAPI/**")).permitAll()
                 .requestMatchers(antMatcher("/fileAPI/**")).permitAll()
                 .requestMatchers(antMatcher("/viewboard/**")).permitAll()
+                .requestMatchers(antMatcher("/image_qna/**")).permitAll()
                 .requestMatchers(antMatcher("/admin/**")).hasRole("ADMIN")
                 .requestMatchers(antMatcher("/Loginmain")).hasAnyRole("USER","ADMIN")
-                .requestMatchers(antMatcher("/files/**")).permitAll()
+
 
                 .anyRequest().authenticated();
         });
 
-//        http.exceptionHandling((e) -> e.authenticationEntryPoint(new CustomAuthenticationEntryPoint()));
+//ip찍기
+        http.addFilterBefore(new VisitorFilter(userService), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

@@ -43,8 +43,8 @@ public class Board {
     @Column(name = "regdate")
     private LocalDateTime regdate;
 
-    @Column(name = "nickname")
-    private String nickname;
+//    @Column(name = "nickname")
+//    private String nickname;
 
     @ManyToOne
     @JoinColumn(name = "email",referencedColumnName = "email")
@@ -53,18 +53,17 @@ public class Board {
     @Column(name = "board_condition", nullable = false, columnDefinition = "VARCHAR(5) DEFAULT 'N' ")
     private String board_condition;
 
-//    @Column(name="adoptedReply")
-//    private Long adoptedReply;
+    @Column(name="adoptedReply")
+    private Long adoptedReply;
 
 
     @Builder
-    public Board(String title, String content, String hashtag, Long hitcount, Long heart, String nickname, String board_condition){
+    public Board(String title, String content, String hashtag, Long hitcount, Long heart, String board_condition){
         this.title = title;
         this.content = content;
         this.hashtag = hashtag;
         this.hitcount = hitcount;
         this.heart = heart;
-        this.nickname = nickname;
         this.board_condition = board_condition;
     }
 

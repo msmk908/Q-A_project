@@ -109,7 +109,7 @@ public class UserController {
 
         boolean updateSuccess = userService.updateNickname(email, nickname);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/Loginmain"));
+        headers.setLocation(URI.create("/main"));
         if (updateSuccess){
             return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
         }else {
@@ -119,13 +119,11 @@ public class UserController {
 
     @GetMapping("/currentNickname")
     public ResponseEntity<String> getCurrentNickname(@AuthenticationPrincipal BoardPrincipal boardPrincipal) {
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        String email = auth.getName();
+
 
         String email = boardPrincipal.getUsername();
         Users users = userRepository.findByEmail(email).orElseThrow();
        String nickname = users.getNickname();
-     //   String nickname = userService.getNicknameByEmail(email);
         return ResponseEntity.ok(nickname);
     }
 

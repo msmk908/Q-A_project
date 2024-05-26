@@ -46,7 +46,7 @@
 
                         <!-- 취소버튼 -->
                         <div class="col-sm-3 text-right">
-                            <a href="Loginmain" class="btn btn-danger btn-icon-split" id="cancel-button">
+                            <a href="main" class="btn btn-danger btn-icon-split" id="cancel-button">
                                 <span class="text">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;취소 버튼&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </a>
                         </div>
@@ -206,7 +206,6 @@
     document.addEventListener("DOMContentLoaded", async function() {
         let uploadedFiles = []; // 업로드된 파일 정보를 저장할 배열
         //let deletedFiles = []; // 삭제된 파일 정보를 저장할 배열
-        let alertShown = false; // 알림창 표시 여부 플래그
 
         try {
             const response = await fetch('/fileAPI/fileconfig');
@@ -257,10 +256,7 @@
             // 최대 파일 수 초과 메서드
             myDropzone.on("maxfilesexceeded", function(file) {
                 this.removeFile(file); // 초과한 파일 제거
-                if (!alertShown) {
-                    alert("업로드 가능한 최대 파일 수: " + maxFiles + "개"); // 사용자에게 알림
-                    alertShown = true; // 알림창 표시 여부 플래그를 true로 설정
-                }
+                alert("업로드 가능한 최대 파일 수: " + maxFiles + "개"); // 사용자에게 알림
             });
 
             // 최대용량 초과, 허용되지 않는 허용자 메서드
@@ -343,7 +339,7 @@
                 })
                     .then(() => {
                         alert("등록 완료되었습니다.");
-                        location.replace("/Loginmain");
+                        location.replace("/main");
                     })
                     .catch(() => {
                         alert("등록 실패했습니다.");

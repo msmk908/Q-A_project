@@ -3,6 +3,8 @@ package com.codeqna.repository;
 import com.codeqna.dto.LogsViewDto;
 import com.codeqna.dto.RepliesViewDto;
 import com.codeqna.entity.Reply;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

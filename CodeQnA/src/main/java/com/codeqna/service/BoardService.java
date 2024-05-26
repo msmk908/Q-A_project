@@ -8,6 +8,8 @@ import com.codeqna.entity.*;
 import com.codeqna.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -96,7 +99,6 @@ public class BoardService {
 
         // 기존 게시물의 정보를 수정
         existingBoard.setTitle(request.getTitle());
-        existingBoard.setNickname(request.getNickname());
         existingBoard.setContent(request.getContent());
         existingBoard.setHashtag(request.getHashtag());
         existingBoard.setHeart(request.getHeart());
@@ -335,12 +337,31 @@ public class BoardService {
         }
     }
 
-//    public void adoptReply(Long bno, Long rno) {
-//        Board board = boardRepository.findByBno(bno);
-//        board.setAdoptedReply(rno);
-//        Reply reply = replyRepository.findById(rno).orElseThrow();
-//        reply.setAdopted("Y");
-//    }
+    public void adoptReply(Long bno, Long rno) {
+        Board board = boardRepository.findByBno(bno);
+        board.setAdoptedReply(rno);
+        Reply reply = replyRepository.findById(rno).orElseThrow();
+        reply.setAdopted("Y");
+        String email = reply.getUser().getEmail();
+        Users user = userRepository.findByEmail(email).orElseThrow();
+        user.setAdoption(user.getAdoption()+1);
+
+    }
+    public long getTotalCount() {
+        return boardRepository.countByBoard_condition("N");
+    }
+
+    public Optional<Board> getPreviousActiveBoard(Long bno) {
+        Pageable pageable = PageRequest.of(0, 1);
+        List<Board> result = boardRepository.findPreviousActiveBoard(bno, pageable);
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+    }
+
+    public Optional<Board> getNextActiveBoard(Long bno) {
+        Pageable pageable = PageRequest.of(0, 1);
+        List<Board> result = boardRepository.findNextActiveBoard(bno, pageable);
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+    }
 
 
 }

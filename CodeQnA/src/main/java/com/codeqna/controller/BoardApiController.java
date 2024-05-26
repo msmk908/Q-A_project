@@ -5,7 +5,6 @@ import com.codeqna.dto.security.BoardPrincipal;
 import com.codeqna.entity.Board;
 import com.codeqna.entity.Heart;
 import com.codeqna.entity.Users;
-import com.codeqna.repository.LogsRepository;
 import com.codeqna.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,7 +27,7 @@ public class BoardApiController {
     // 게시물 등록
     @PostMapping("/register")
     public ResponseEntity<Board> addBoard(@RequestBody AddBoardRequest request,
-                                          @AuthenticationPrincipal BoardPrincipal boardPrincipal    ){
+                                          @AuthenticationPrincipal BoardPrincipal boardPrincipal){
 
         String email = boardPrincipal.getUsername();
         Board savedBoard = boardService.save(request,email);
@@ -56,7 +55,6 @@ public class BoardApiController {
     @PutMapping("/delete/{bno}")
     public ResponseEntity<Void> delete(@PathVariable Long bno) {
         boardService.deleteBoard(bno);
-        System.out.println("요까지1");
 
         return ResponseEntity.ok().build();
     }
@@ -65,15 +63,15 @@ public class BoardApiController {
     @PutMapping("/deleteAdmin/{bno}")
     public ResponseEntity<Void> deleteAdmin(@PathVariable Long bno) {
         boardService.deleteAdminBoard(bno);
-        System.out.println("요까지1");
 
         return ResponseEntity.ok().build();
     }
 
     //좋아요를 눌렀을 경우
     @PutMapping("/heart/like")
-    public ResponseEntity<Void> increaseHeart(@RequestBody HeartDto heartDto) {
-        heartService.increaseHeart(heartDto);
+    public ResponseEntity<Void> increaseHeart(@RequestBody HeartDto heartDto,
+                                              @AuthenticationPrincipal BoardPrincipal boardPrincipal ) {
+        heartService.increaseHeart(heartDto,boardPrincipal.getUsername());
         //System.out.println("닉네임 오냐? : " + heartDto.getNickname());
 
         return ResponseEntity.ok().build();
@@ -82,25 +80,21 @@ public class BoardApiController {
 
     //좋아요를 취소했을 경우
     @PutMapping("/heart/unlike")
-    public ResponseEntity<Void> decreaseHeart(@RequestBody HeartDto heartDto) {
-        heartService.decreaseHeart(heartDto);
+    public ResponseEntity<Void> decreaseHeart(@RequestBody HeartDto heartDto,
+                                              @AuthenticationPrincipal BoardPrincipal boardPrincipal) {
+        heartService.decreaseHeart(heartDto,boardPrincipal.getUsername());
         return ResponseEntity.ok().build();
     }
 
     //로그인 후 상세 페이지에 들어갔을 때 그 사용자가 그 게시물에 좋아요를 눌렀는지 여부 반환
     @PostMapping("/heart/pressHeart")
-    public @ResponseBody Heart isHeart(@RequestBody HeartDto heartDto) {
-        System.out.println("이게 실행되나?");
-        System.out.println("이게 json : " + heartService.isHeart(heartDto));
-        return heartService.isHeart(heartDto);
+    public @ResponseBody Heart isHeart(@RequestBody HeartDto heartDto,
+                                       @AuthenticationPrincipal BoardPrincipal boardPrincipal) {
+
+        return heartService.isHeart(heartDto, boardPrincipal.getUsername());
     }
 
-    //댓글 등록
-    @PostMapping("/comment/add")
-    public ResponseEntity<ParentReplyDto> addComment(@RequestBody ParentReplyDto parentReplyDto) {
-        replyService.addComment(parentReplyDto);
-        return ResponseEntity.ok().build();
-    }
+
     //회원관리페이지
     //검색
     @GetMapping("/searchUsers")
@@ -170,16 +164,6 @@ public class BoardApiController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error recovering boards");
         }
     }
-//    //댓글 채택
-//    @GetMapping("/reply/adopt/{bno}")
-//    public ResponseEntity<Void> adoptReply(@PathVariable Long bno,
-//                                           @RequestBody Long rno){
-//        boardService.adoptReply(bno,rno);
-//
-//
-//        return ResponseEntity.ok().build();
-//
-//    }
 
     // 삭제게시물 검색
     @GetMapping("/searchManageBoardTable")
@@ -226,6 +210,18 @@ public class BoardApiController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting boards");
         }
     }
+    //댓글 채택
+    @GetMapping("/reply/adopt/{bno}/{rno}")
+    public ResponseEntity<Void> adoptReply(@PathVariable Long bno,
+                                           @PathVariable Long rno){
+        boardService.adoptReply(bno,rno);
+
+
+        return ResponseEntity.ok().build();
+
+    }
+
+
 
 
 

@@ -5,6 +5,7 @@ import com.codeqna.dto.security.BoardPrincipal;
 import com.codeqna.entity.Users;
 import com.codeqna.repository.UserRepository;
 import com.codeqna.service.UserService;
+import com.codeqna.service.VisitorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +37,7 @@ public class SecurityConfig {
     private UserRepository userRepository;
 
     @Autowired
-    private UserService userService;
+    private VisitorService visitorService;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -53,7 +54,7 @@ public class SecurityConfig {
 
         http.formLogin((it) -> it
                 .loginPage("/users/login")
-                .defaultSuccessUrl("/Loginmain")
+                .defaultSuccessUrl("/main")
                 .successHandler(customAuthenticationSuccessHandler())
                 .usernameParameter("email")
                 .failureUrl("/users/login/error")
@@ -87,16 +88,16 @@ public class SecurityConfig {
                 .requestMatchers(antMatcher("/boardAPI/**")).permitAll()
                 .requestMatchers(antMatcher("/fileAPI/**")).permitAll()
                 .requestMatchers(antMatcher("/viewboard/**")).permitAll()
+                .requestMatchers(antMatcher("/newboard/**")).permitAll()
                 .requestMatchers(antMatcher("/image_qna/**")).permitAll()
                 .requestMatchers(antMatcher("/admin/**")).hasRole("ADMIN")
-                .requestMatchers(antMatcher("/Loginmain")).hasAnyRole("USER","ADMIN")
-
+//                .requestMatchers(antMatcher("/Loginmain")).hasAnyRole("USER","ADMIN")
 
                 .anyRequest().authenticated();
         });
 
 //ip찍기
-        http.addFilterBefore(new VisitorFilter(userService), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new VisitorFilter(visitorService), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -115,7 +116,7 @@ public class SecurityConfig {
             String email = authentication.getName();
             Users users = userRepository.findByEmail(email).orElseThrow();
             if (users.getUser_condition().equals("N")) {
-                response.sendRedirect("/Loginmain");
+                response.sendRedirect("/main");
             } else {
                 SecurityContextHolder.clearContext();
                 request.getSession().invalidate();

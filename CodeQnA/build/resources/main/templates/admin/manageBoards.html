@@ -304,7 +304,11 @@
                     $('<td>').html('<input type="checkbox"/>').appendTo(newRow);
                     $('<td>').text(board.bno).appendTo(newRow);
                     $('<td>').text(board.title).appendTo(newRow);
+<<<<<<< HEAD
                     $('<td>').text(board.user.nickname).appendTo(newRow);
+=======
+                    $('<td>').text(board.getUser().getNickname()).appendTo(newRow);
+>>>>>>> 6592b1081fdd825bf51a681f8f5854304bb9a14d
                     $('<td>').text(formatDate(new Date(board.regdate))).appendTo(newRow);
                     $('<td>').text(board.hitcount).appendTo(newRow);
                     $('<td>').text(board.heart).appendTo(newRow);

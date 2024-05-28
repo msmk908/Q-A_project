@@ -57,8 +57,13 @@ public class ArticleCommentService {
                 .filter(comment -> !comment.hasParentComment())
                 .collect(Collectors.toCollection(() ->
                         new TreeSet<>(Comparator
+<<<<<<< HEAD
                                 .comparing(ArticleCommentResponse::getAdopted).reversed()
                                 .thenComparing(ArticleCommentResponse::getCreatedAt)
+=======
+                                .comparing(ArticleCommentResponse::getAdopted)
+                                .thenComparing(ArticleCommentResponse::getCreatedAt).reversed()
+>>>>>>> 6592b1081fdd825bf51a681f8f5854304bb9a14d
                                 .thenComparingLong(ArticleCommentResponse::getId)
                         )
                 ));

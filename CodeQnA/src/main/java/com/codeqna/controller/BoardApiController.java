@@ -6,7 +6,10 @@ import com.codeqna.entity.Board;
 import com.codeqna.entity.Heart;
 import com.codeqna.entity.Uploadfile;
 import com.codeqna.entity.Users;
+<<<<<<< HEAD
 import com.codeqna.repository.UploadfileRepository;
+=======
+>>>>>>> 6592b1081fdd825bf51a681f8f5854304bb9a14d
 import com.codeqna.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,16 +67,22 @@ public class BoardApiController {
 
     //게시물 삭제
     @PutMapping("/delete/{bno}")
+<<<<<<< HEAD
     public ResponseEntity<Void> delete(@PathVariable Long bno,
                                        @AuthenticationPrincipal BoardPrincipal boardPrincipal) {
         boardService.deleteBoard(bno,boardPrincipal.getUsername());
 
+=======
+    public ResponseEntity<Void> delete(@PathVariable Long bno) {
+        boardService.deleteBoard(bno);
+>>>>>>> 6592b1081fdd825bf51a681f8f5854304bb9a14d
 
         return ResponseEntity.ok().build();
     }
 
     // 관리자가 게시물 삭제
     @PutMapping("/deleteAdmin/{bno}")
+<<<<<<< HEAD
     public ResponseEntity<Void> deleteAdmin(@PathVariable Long bno, @AuthenticationPrincipal BoardPrincipal boardPrincipal) {
         // authorities 컬렉션에서 권한 이름을 확인하여 USER_ADMIN이 있는지 확인
         boolean isAdmin = boardPrincipal.getAuthorities().stream()
@@ -90,6 +99,10 @@ public class BoardApiController {
             //권한 없음
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+=======
+    public ResponseEntity<Void> deleteAdmin(@PathVariable Long bno) {
+        boardService.deleteAdminBoard(bno);
+>>>>>>> 6592b1081fdd825bf51a681f8f5854304bb9a14d
 
     }
 
@@ -117,8 +130,11 @@ public class BoardApiController {
     public @ResponseBody Heart isHeart(@RequestBody HeartDto heartDto,
                                        @AuthenticationPrincipal BoardPrincipal boardPrincipal) {
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 6592b1081fdd825bf51a681f8f5854304bb9a14d
         return heartService.isHeart(heartDto, boardPrincipal.getUsername());
     }
 
@@ -280,9 +296,14 @@ public class BoardApiController {
     //댓글 채택
     @GetMapping("/reply/adopt/{bno}/{rno}")
     public ResponseEntity<Void> adoptReply(@PathVariable Long bno,
+<<<<<<< HEAD
                                            @PathVariable Long rno,
                                            @AuthenticationPrincipal BoardPrincipal boardPrincipal){
         boardService.adoptReply(bno,rno,boardPrincipal.getUsername());
+=======
+                                           @PathVariable Long rno){
+        boardService.adoptReply(bno,rno);
+>>>>>>> 6592b1081fdd825bf51a681f8f5854304bb9a14d
 
 
         return ResponseEntity.ok().build();

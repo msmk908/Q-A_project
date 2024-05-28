@@ -17,6 +17,9 @@ public interface HeartRepository extends JpaRepository<Heart, Long> {
 
     @Query(value = "SELECT * FROM heart WHERE bno = :bno AND email = :email", nativeQuery = true)
     Heart isHeart(Long bno, String email);
+<<<<<<< HEAD
 
     Boolean existsByUser_EmailAndBoard_Bno(String email, Long bno);
+=======
+>>>>>>> 6592b1081fdd825bf51a681f8f5854304bb9a14d
 }

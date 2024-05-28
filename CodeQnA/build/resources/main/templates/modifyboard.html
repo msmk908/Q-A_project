@@ -303,6 +303,9 @@
                 }
             });
 
+            const uploadPath = "${uploadPath}"; // 서버에서 전달된 업로드 경로
+            console.log(uploadPath);
+
             // 기존 파일을 Dropzone에 추가
             existingFiles.forEach(file => {
                 let mockFile = { name: file.originalFileName, savedFileName: file.savedFileName };
@@ -314,7 +317,12 @@
                 console.log("기존에 업로드된 파일 : " + uploadedFiles);
 
                 // 저장된 파일의 URL을 설정하여 썸네일 이미지를 보여줄 수 있음
+<<<<<<< HEAD
                 myDropzone.emit("thumbnail", mockFile, `http://222.119.100.90:8213/image_qna/${file.savedFileName}`);
+=======
+                let thumbnailUrl = `${uploadPath}/${file.savedFileName}`; // 파일의 썸네일 경로
+                myDropzone.emit("thumbnail", mockFile, thumbnailUrl);
+>>>>>>> 6592b1081fdd825bf51a681f8f5854304bb9a14d
 
                 myDropzone.files.push(mockFile);
             });

@@ -37,7 +37,7 @@ public class HeartService {
 
         Board board = boardRepository.findByBno(heartDto.getBno());
         heart.setBoard(board);
-        heartRepository.save(heart);
+      //  heartRepository.save(heart);
     }
     //-------------------------------------------------------------
 
@@ -60,8 +60,11 @@ public class HeartService {
 
     //게시물 heart 눌렀는지 여부
     public Heart isHeart(HeartDto heartDto, String email) {
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 6592b1081fdd825bf51a681f8f5854304bb9a14d
         return heartRepository.isHeart(heartDto.getBno(), email);
     }
 

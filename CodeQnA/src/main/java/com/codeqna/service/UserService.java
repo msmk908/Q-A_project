@@ -187,10 +187,13 @@ public class UserService implements UserDetailsService {
     public List<Users> searchRadioKakao(String kakaoCondition){
         return userRepository.findByKakaoContaining(kakaoCondition);
     }
+<<<<<<< HEAD
 
     public boolean checkPassword(String email, String rawPassword) {
 
         Users user = userRepository.findByEmail(email).orElseThrow();
         return passwordEncoder.matches(rawPassword, user.getPassword());
     }
+=======
+>>>>>>> 6592b1081fdd825bf51a681f8f5854304bb9a14d
 }

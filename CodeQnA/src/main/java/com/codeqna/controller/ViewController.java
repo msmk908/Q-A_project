@@ -42,7 +42,10 @@ public class ViewController {
     private final UserService userService;
     private final UploadfileRepository uploadfileRepository;
     private final VisitorService visitorService;
+<<<<<<< HEAD
     private final FileconfigRepository fileconfigRepository;
+=======
+>>>>>>> 6592b1081fdd825bf51a681f8f5854304bb9a14d
 
     @Value("${upload.path}")
     private String uploadPath;

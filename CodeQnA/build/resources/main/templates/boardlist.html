@@ -177,7 +177,11 @@
                                         <!-- Bronze Badge -->
                                         <img th:if="${board.getUser().getAdoption()} >= 15 and ${board.getUser().getAdoption()} < 30" src="/img/bronze.png" class="image-small" alt="Bronze Badge">
                                         <!-- 닉네임 출력 -->
+<<<<<<< HEAD
                                         <span th:text="${board.user.nickname}"></span>
+=======
+                                        <span th:text="${board.getUser().getNickname()}"></span>
+>>>>>>> 6592b1081fdd825bf51a681f8f5854304bb9a14d
                                     </td>
                                     <td th:text="${board.hashtag}"></td>
                                     <td th:text="${board.hitcount}"></td>

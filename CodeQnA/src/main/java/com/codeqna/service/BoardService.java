@@ -357,6 +357,7 @@ public class BoardService {
         }
     }
 
+<<<<<<< HEAD
     public void adoptReply(Long bno, Long rno,String loginEmail) {
         Board board = boardRepository.findByBno(bno);
         String boardEmail = board.getUser().getEmail();
@@ -372,6 +373,16 @@ public class BoardService {
         }
 
 
+=======
+    public void adoptReply(Long bno, Long rno) {
+        Board board = boardRepository.findByBno(bno);
+        board.setAdoptedReply(rno);
+        Reply reply = replyRepository.findById(rno).orElseThrow();
+        reply.setAdopted("Y");
+        String email = reply.getUser().getEmail();
+        Users user = userRepository.findByEmail(email).orElseThrow();
+        user.setAdoption(user.getAdoption()+1);
+>>>>>>> 6592b1081fdd825bf51a681f8f5854304bb9a14d
 
     }
     public long getTotalCount() {
